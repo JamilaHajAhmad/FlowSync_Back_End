@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WebApplicationFlowSync")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+877f09fc06cb04611a9f436f0b306710f7b20c47")]
 [assembly: System.Reflection.AssemblyProductAttribute("WebApplicationFlowSync")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WebApplicationFlowSync")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

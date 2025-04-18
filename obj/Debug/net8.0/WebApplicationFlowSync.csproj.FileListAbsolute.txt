@@ -162,3 +162,4 @@ C:\Users\hp\Desktop\asp1\WebApplicationFlowSync\obj\Debug\net8.0\refint\WebAppli
 C:\Users\hp\Desktop\asp1\WebApplicationFlowSync\obj\Debug\net8.0\WebApplicationFlowSync.pdb
 C:\Users\hp\Desktop\asp1\WebApplicationFlowSync\obj\Debug\net8.0\WebApplicationFlowSync.genruntimeconfig.cache
 C:\Users\hp\Desktop\asp1\WebApplicationFlowSync\obj\Debug\net8.0\ref\WebApplicationFlowSync.dll
+C:\Users\hp\Desktop\asp1\WebApplicationFlowSync\obj\Debug\net8.0\WebApplicationFlowSync.sourcelink.json

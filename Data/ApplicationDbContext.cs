@@ -55,7 +55,7 @@ namespace WebApplicationFlowSync.Data
       .HasOne(p => p.Member)
       .WithMany(u => u.SentJoinRequests)
       .HasForeignKey(p => p.MemberId)
-      .OnDelete(DeleteBehavior.NoAction);
+      .OnDelete(DeleteBehavior.SetNull);// لانه العلاقة  optional
 
             modelBuilder.Entity<PendingMemberRequest>()
                 .HasOne(p => p.Leader)

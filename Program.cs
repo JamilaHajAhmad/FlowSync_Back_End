@@ -8,6 +8,8 @@ using System.Text;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.Errors;
 using WebApplicationFlowSync.Models;
+using WebApplicationFlowSync.services.EmailService;
+using WebApplicationFlowSync.services;
 using Task = System.Threading.Tasks.Task;
 
 namespace WebApplicationFlowSync
@@ -70,6 +72,14 @@ namespace WebApplicationFlowSync
 
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
+
+            // Email Service (outlook)
+            builder.Services.AddScoped<IEmailService, EmailService>();
+
+
+            //Add Auth Service (generate token)
+            builder.Services.AddScoped<AuthServices>();
+
 
             // Serilog
             builder.Host.UseSerilog((context, config) =>
@@ -134,6 +144,8 @@ namespace WebApplicationFlowSync
                     }
                 }).GetAwaiter().GetResult();
             }
+
+            app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();
 
