@@ -11,7 +11,7 @@ namespace WebApplicationFlowSync.Models
         public string OSSNumber { get; set; }
         [Required]
         public string CaseSource { get; set; }
-        public TaskStatus Type { get; set; }
+        public TaskStatus Type { get; set; } = TaskStatus.Opened;
         public TaskPriority Priority { get; set; }
         public DateTime CreatedAt { get; set; }
 
