@@ -22,6 +22,8 @@ namespace WebApplicationFlowSync.Errors
                 Detail = exception.Message,
             };
 
+            // 🟩 أضف هذا السطر قبل إرسال الرد
+            httpContext.Response.ContentType = "application/json";
             httpContext.Response.StatusCode = problemDetails.Status.Value;
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
