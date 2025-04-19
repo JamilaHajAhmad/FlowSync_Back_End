@@ -1,1 +1,35 @@
-.vs
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build outputs
+bin/
+obj/
+out/
+
+# NuGet packages
+*.nupkg
+packages/
+
+# Dotnet CLI
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# User-specific files
+*.swp
+*.bak
+*.tmp
+*.log
+
+# Launch settings
+Properties/launchSettings.json
+
+# SSL certs (optional)
+*.pfx
+*.cert
+
+# System
+.DS_Store
+Thumbs.db
