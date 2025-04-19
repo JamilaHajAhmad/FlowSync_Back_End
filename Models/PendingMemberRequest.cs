@@ -4,16 +4,36 @@
     {
         public int Id { get; set; }
 
-        //علاقة مع العضو(Member)
+        // العضو مقدم الطلب
         public string? MemberId { get; set; }
         public AppUser? Member { get; set; }
+        // القائد المستلم للطلب
+        public string? LeaderId { get; set; }
+        public AppUser? Leader { get; set; }
 
-        //علاقة مع القائد(Leader)
-        public string LeaderId { get; set; }
-        public AppUser Leader { get; set; }
+        // نوع الطلب
+        public RequestType Type { get; set; }
 
+        // الحقول المشتركة
+        public string MemberName { get; set; }
+        public string Email { get; set; }
         public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
+        public RequestStatus RequestStatus { get; set; } = RequestStatus.Pending;
 
-        public bool IsApproved { get; set; } = false;
+    }
+
+    public enum RequestType
+    {
+        Base,
+        SignUp,
+        CompleteTask,
+        FreezeTask
+    }
+
+    public enum RequestStatus
+    {
+        Pending,
+        Approved,
+        Rejected
     }
 }

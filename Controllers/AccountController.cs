@@ -8,6 +8,7 @@ using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.DTOs.Auth;
 using WebApplicationFlowSync.Models;
+using WebApplicationFlowSync.Models.Requests;
 using WebApplicationFlowSync.services;
 using WebApplicationFlowSync.services.EmailService;
 using Task = System.Threading.Tasks.Task;
@@ -84,7 +85,7 @@ namespace WebApplicationFlowSync.Controllers
                 Console.WriteLine(confirmationLink);
                 if (model.Role == Role.Leader)
                 {
-                    await SendConfirmationEmail(user.Email, "تأكيد حسابك كـ Leader", confirmationLink);
+                    await emailService.SendConfirmationEmail(user.Email, "تأكيد حسابك كـ Leader", confirmationLink);
                 }
                 else if (model.Role == Role.Member)
                 {
@@ -92,19 +93,19 @@ namespace WebApplicationFlowSync.Controllers
                     if (leader is null)
                         throw new Exception("There is no Leader currently.");
 
-                    //var pendingRequest = new SignUpRequest()
-                    //{
-                    //    MemberId = user.Id,
-                    //    LeaderId = leader.Id,
-                    //    Type = RequestType.SignUp,
-                    //    MemberName = user.FirstName + " " + user.LastName,
-                    //    Email = user.Email
-                    //};
-                    var pendingRequest = new PendingMemberRequest()
+                    var pendingRequest = new SignUpRequest()
                     {
                         MemberId = user.Id,
                         LeaderId = leader.Id,
+                        Type = RequestType.SignUp,
+                        MemberName = user.FirstName + " " + user.LastName,
+                        Email = user.Email
                     };
+                    //var pendingRequest = new PendingMemberRequest()
+                    //{
+                    //    MemberId = user.Id,
+                    //    LeaderId = leader.Id,
+                    //};
 
                     await context.PendingMemberRequests.AddAsync(pendingRequest);
                     await context.SaveChangesAsync();
@@ -121,81 +122,85 @@ namespace WebApplicationFlowSync.Controllers
             }
         }
 
-        // موافقة القائد على العضو
-        [HttpPost("approve-member/{requestId}")]
-        [Authorize(Roles = "Leader")]
-        public async Task<IActionResult> ApproveMember(int requestId)
-        {
-            var pendingRequest = await context.PendingMemberRequests
-                .FirstOrDefaultAsync(r => r.Id == requestId);
-            if (pendingRequest == null)
-            {
-                throw new Exception("طلب العضوية غير موجود.");
-            }
+        //// موافقة القائد على العضو
+        //[HttpPost("approve-member/{requestId}")]
+        //[Authorize(Roles = "Leader")]
+        //public async Task<IActionResult> ApproveMember(int requestId)
+        //{
+        //    var pendingRequest = await context.PendingMemberRequests
+        //        .FirstOrDefaultAsync(r => r.Id == requestId);
+        //    if (pendingRequest == null)
+        //    {
+        //        throw new Exception("Membership request not found.");
+        //    }
 
-            var currentUser = await userManager.GetUserAsync(User);
-            Console.WriteLine($"Current user: {currentUser?.UserName}");  // لازم يظهر اسم
-            if (currentUser == null)
-            {
-                //return Unauthorized("لم يتم التحقق من هوية المستخدم.");
-                throw new Exception("لم يتم التحقق من هوية المستخدم.");
-            }
+        //    var currentUser = await userManager.GetUserAsync(User);
+        //    //Console.WriteLine($"Current user: {currentUser?.UserName}");  // لازم يظهر اسم
+        //    if (currentUser == null)
+        //    {
+        //        throw new Exception("User identity not verified (member information not found in the request)");
+        //    }
 
-            if (pendingRequest.LeaderId == null)
-            {
-                return BadRequest("الطلب لا يحتوي على معرف القائد.");
-            }
+        //    if (pendingRequest.LeaderId == null)
+        //    {
+        //        //return BadRequest("الطلب لا يحتوي على معرف القائد.");
+        //        throw new Exception("The request does not contain a leader ID.");
+        //    }
 
-            // الموافقة على الطلب
-            pendingRequest.IsApproved = true;
-            await context.SaveChangesAsync(); // حفظ التغييرات في قاعدة البيانات
+        //    // الموافقة على الطلب
+        //    pendingRequest.RequestStatus = RequestStatus.Approved;
+        //    await context.SaveChangesAsync(); // حفظ التغييرات في قاعدة البيانات
 
-            // إرسال بريد إلكتروني للميمبر بعد الموافقة
-            var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
-            if (member != null)
-            {
-                var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);
-                var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = member.Id, token = confirmationToken }, Request.Scheme);
+        //    // إرسال بريد إلكتروني للميمبر بعد الموافقة
+        //    var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
+        //    if (member != null)
+        //    {
+        //        var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);
+        //        var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = member.Id, token = confirmationToken }, Request.Scheme);
 
-                await SendConfirmationEmail(member.Email, "تأكيد حسابك كـ Member", confirmationLink);
-            }
+        //        await SendConfirmationEmail(member.Email, "The Leader has accepted your request to join the Team. Confirm your account as a Member.", confirmationLink);
+        //    }
 
-            return Ok("Membership has been successfully approved, please check your email.");
-        }
+        //    return Ok("Membership has been successfully approved, please check your email.");
+        //}
 
 
-        [HttpPost("reject-member/{requestId}")]
-        [Authorize(Roles = "Leader")]
-        public async Task<IActionResult> RejectMember(int requestId)
-        {
-            var pendingRequest = await context.PendingMemberRequests
-                .FirstOrDefaultAsync(r => r.Id == requestId);
+        //[HttpPost("reject-member/{requestId}")]
+        //[Authorize(Roles = "Leader")]
+        //public async Task<IActionResult> RejectMember(int requestId)
+        //{
+        //    var pendingRequest = await context.PendingMemberRequests
+        //        .FirstOrDefaultAsync(r => r.Id == requestId);
 
-            if (pendingRequest == null)
-            {
-                return NotFound("طلب العضوية غير موجود.");
-            }
+        //    if (pendingRequest == null)
+        //    {
+        //        //return NotFound("طلب العضوية غير موجود.");
+        //        throw new Exception("Membership request not found.");
+        //    }
 
-            // التأكد من أن القائد هو من يرفض
-            var currentUser = await userManager.GetUserAsync(User);
-            if (pendingRequest.LeaderId != currentUser.Id)
-            {
-                return Unauthorized("أنت لست القائد المعني.");
-            }
+        //    // التأكد من أن القائد هو من يرفض
+        //    var currentUser = await userManager.GetUserAsync(User);
+        //    if (pendingRequest.LeaderId != currentUser.Id)
+        //    {
+        //        //return Unauthorized("أنت لست القائد المعني.");
+        //        throw new Exception("You are not the leader required in the request.");
+        //    }
 
-            var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
-            //حذف الطلب 
-            //context.PendingMemberRequests.Remove(pendingRequest);
-            await context.SaveChangesAsync(); // نحفظ هنا قبل حذف العضو
-            // حذف المستخدم من النظام
-            if (member != null)
-            {
-                await userManager.DeleteAsync(member);
-                await context.SaveChangesAsync();
-            }
+        //    var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
+        //    // رفض الطلب
+        //    pendingRequest.RequestStatus = RequestStatus.Rejected;
+        //    //حذف الطلب 
+        //    //context.PendingMemberRequests.Remove(pendingRequest);
+        //    await context.SaveChangesAsync(); /// نحفظ هنا قبل حذف العضو
+        //    // حذف المستخدم من النظام
+        //    if (member != null)
+        //    {
+        //        await userManager.DeleteAsync(member);
+        //        await context.SaveChangesAsync();
+        //    }
 
-            return Ok("تم رفض الطلب وحذف العضو من النظام.");
-        }
+        //    return Ok("The request was rejected and the member was removed from the system.");
+        //}
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
@@ -333,15 +338,15 @@ namespace WebApplicationFlowSync.Controllers
             return Ok("تم تأكيد البريد الإلكتروني بنجاح.");
         }
 
-        private async Task SendConfirmationEmail(string to, string subject, string link)
-        {
-            var emailDto = new EmailDto
-            {
-                To = to,
-                Subject = subject,
-                Body = $"يرجى تأكيد بريدك عبر الرابط التالي: {link}"
-            };
-            await emailService.sendEmailAsync(emailDto);
-        }
+        //private async Task SendConfirmationEmail(string to, string subject, string link)
+        //{
+        //    var emailDto = new EmailDto
+        //    {
+        //        To = to,
+        //        Subject = subject,
+        //        Body = $"يرجى تأكيد بريدك عبر الرابط التالي: {link}"
+        //    };
+        //    await emailService.sendEmailAsync(emailDto);
+        //}
     }
 }

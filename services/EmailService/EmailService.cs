@@ -29,5 +29,17 @@ namespace WebApplicationFlowSync.services.EmailService
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
         }
+
+        // ✅ الدالة الجديدة
+        public async Task SendConfirmationEmail(string to, string subject, string link)
+        {
+            var emailDto = new EmailDto
+            {
+                To = to,
+                Subject = subject,
+                Body = $"يرجى تأكيد بريدك عبر الرابط التالي: <a href=\"{link}\">{link}</a>"
+            };
+            await sendEmailAsync(emailDto);
+        }
     }
     }

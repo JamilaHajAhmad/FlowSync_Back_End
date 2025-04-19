@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Models;
+using WebApplicationFlowSync.Models.Requests;
 
 namespace WebApplicationFlowSync.Data
 {
@@ -62,6 +63,23 @@ namespace WebApplicationFlowSync.Data
                 .WithMany(u => u.ReceivedJoinRequests)
                 .HasForeignKey(p => p.LeaderId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            //TPH (وراثة)
+            modelBuilder.Entity<PendingMemberRequest>()
+           .HasDiscriminator<RequestType>("Type")
+           .HasValue<PendingMemberRequest>(RequestType.Base)
+           .HasValue<SignUpRequest>(RequestType.SignUp)
+           .HasValue<CompleteTaskRequest>(RequestType.CompleteTask)
+           .HasValue<FreezeTaskRequest>(RequestType.FreezeTask);
+
+            //تعديل اسم عمود FRN
+            modelBuilder.Entity<CompleteTaskRequest>()
+           .Property(c => c.FRNNumber)
+            .HasColumnName("Complete_FRNNumber");
+
+            modelBuilder.Entity<FreezeTaskRequest>()
+           .Property(f => f.FRNNumber)
+           .HasColumnName("Freeze_FRNNumber");
         }
 
         public DbSet<AppUser> Users { get; set; }
