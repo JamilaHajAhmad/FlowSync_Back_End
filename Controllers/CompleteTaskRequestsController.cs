@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    //[Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Leader")]
     public class CompleteTaskRequestsController : ControllerBase
@@ -19,7 +19,7 @@ namespace WebApplicationFlowSync.Controllers
         {
             this.context = context;
         }
-        [HttpGet("all")]
+        [HttpGet("all-complete-requests")]
         public async Task<IActionResult> GetAllCompleteTaskRequests()
         {
             var requests = await context.PendingMemberRequests

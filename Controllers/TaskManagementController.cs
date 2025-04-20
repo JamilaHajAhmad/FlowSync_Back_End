@@ -10,7 +10,7 @@ using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    //[Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class TaskManagementController : ControllerBase
     {
@@ -24,7 +24,7 @@ namespace WebApplicationFlowSync.Controllers
         }
 
         // إنشاء تاسك جديد
-        [HttpPost("createNewTask")]
+        [HttpPost("create-new-task")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto model)
         {
@@ -115,7 +115,6 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok(tasks);
         }
-
 
 
         [HttpGet("member-tasks")]

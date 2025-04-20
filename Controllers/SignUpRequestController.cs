@@ -10,7 +10,7 @@ using WebApplicationFlowSync.services.EmailService;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    //[Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Leader")]
     public class SignUpRequestController : ControllerBase
@@ -27,7 +27,7 @@ namespace WebApplicationFlowSync.Controllers
         }
 
 
-        [HttpGet("all")]
+        [HttpGet("all-signup-requests")]
         public async Task<IActionResult> GetAllSignUpRequests()
         {
             var requests = await context.PendingMemberRequests

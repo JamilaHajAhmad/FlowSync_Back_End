@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    //[Route("api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Leader")]
     public class FreezeTaskRequestsController : ControllerBase
@@ -20,7 +20,7 @@ namespace WebApplicationFlowSync.Controllers
             this.context = context;
         }
 
-        [HttpGet("all")]
+        [HttpGet("all-freeze-requests")]
         public async Task<IActionResult> GetAllFreezeTaskRequests()
         {
             var requests = await context.PendingMemberRequests
