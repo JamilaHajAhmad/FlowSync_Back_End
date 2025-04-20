@@ -279,7 +279,7 @@ namespace WebApplicationFlowSync.Controllers
             var encodedToken = Uri.EscapeDataString(token); // مهم جداً لتأمين الرابط
 
             // إنشاء رابط إعادة تعيين كلمة المرور
-            var resetLink = $"http://localhost:3000/reset-password?userId={user.Id}&token={encodedToken}";
+            var resetLink = $"http://localhost:3001/reset-password?userId={user.Id}&token={encodedToken}";
 
             // إرسال الإيميل
             var emailDto = new EmailDto
