@@ -34,6 +34,7 @@ namespace WebApplicationFlowSync.Controllers
                 .OfType<SignUpRequest>()
                 .Select(r => new
                 {
+                    r.Id,
                     r.MemberName,
                     r.Email,
                     r.RequestedAt,
@@ -56,9 +57,9 @@ namespace WebApplicationFlowSync.Controllers
                 throw new Exception("Membership request not found.");
             }
 
-            var currentUser = await userManager.GetUserAsync(User);
+            var currentLeader = await userManager.GetUserAsync(User);
             //Console.WriteLine($"Current user: {currentUser?.UserName}");  // لازم يظهر اسم
-            if (currentUser == null)
+            if (currentLeader == null)
             {
                 throw new Exception("User identity not verified (member information not found in the request)");
             }
@@ -75,6 +76,11 @@ namespace WebApplicationFlowSync.Controllers
 
             // إرسال بريد إلكتروني للميمبر بعد الموافقة
             var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
+
+            // الربط بين القائد والعضو
+            member.LeaderID = currentLeader.Id;
+            context.SaveChanges();
+
             if (member != null)
             {
                 var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);

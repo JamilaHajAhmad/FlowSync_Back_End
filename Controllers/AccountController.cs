@@ -276,13 +276,10 @@ namespace WebApplicationFlowSync.Controllers
 
             // إنشاء رمز إعادة تعيين كلمة المرور
             var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            var encodedToken = Uri.EscapeDataString(token); // مهم جداً لتأمين الرابط
 
             // إنشاء رابط إعادة تعيين كلمة المرور
-            var resetLink = Url.Action("ResetPassword", "Account", new
-            {
-                userId = user.Id,
-                token = token
-            }, Request.Scheme);
+            var resetLink = $"http://localhost:3000/reset-password?userId={user.Id}&token={encodedToken}";
 
             // إرسال الإيميل
             var emailDto = new EmailDto
@@ -301,8 +298,12 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto model)
         {
             var user = await userManager.FindByIdAsync(model.UserId);
+
             if (user == null)
                 return BadRequest("Invalid user.");
+
+            var decodedToken = Uri.UnescapeDataString(model.Token); // فك التشفير إذا لزم
+
 
             var result = await userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
 

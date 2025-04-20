@@ -33,7 +33,7 @@ namespace WebApplicationFlowSync.Controllers
 
             foreach (var user in users)
             {
-                if (user.Role != Role.Member) continue;
+                if (user.Role != Role.Member || user.EmailConfirmed== false) continue;
 
                 int activeTasksCount = user.Tasks?
                     .Count(t => t.Type == TaskStatus.Opened) ?? 0;
@@ -76,10 +76,11 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> GetMembersWithOngoingTasks()
         {
             var members = await userManager.Users
-                .Where(u => u.Role == Role.Member)
+                .Where(u => u.Role == Role.Member && u.EmailConfirmed == true)
                 .Include(u => u.Tasks)
                 .Select(u => new
                 {
+                    Id = u.Id,
                     FullName = u.FirstName + " " + u.LastName,
                     OngoingTasks = u.Tasks.Count(t => t.Type == TaskStatus.Opened)
                 })
