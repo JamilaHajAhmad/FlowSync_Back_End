@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
+using WebApplicationFlowSync.Migrations;
 using WebApplicationFlowSync.Models;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
@@ -28,50 +29,54 @@ namespace WebApplicationFlowSync.Controllers
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto model)
         {
-                // الحصول على المستخدم الحالي
-                var currentUser = await userManager.GetUserAsync(User);
+            // الحصول على المستخدم الحالي
+            var currentUser = await userManager.GetUserAsync(User);
 
-                // التأكد من أن المستخدم هو قائد
-                if (currentUser == null || currentUser.Role != Role.Leader)
-                {
-                    return Forbid("Only leaders can create tasks.");
-                }
-
-                // التأكد من أن الـ DTO المرسل صحيح
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
-                // idالبحث عن العضو بناءً على ال
-
-                var member = await context.Users
-                 .FirstOrDefaultAsync(u => u.Id == model.SelectedMemberId && u.LeaderID == currentUser.Id && u.Role == Role.Member);
-
-
-                if (member == null)
-                {
-                   return NotFound("Member not found or not assigned to your team.");
+            // التأكد من أن المستخدم هو قائد
+            if (currentUser == null || currentUser.Role != Role.Leader)
+            {
+                return Forbid("Only leaders can create tasks.");
             }
 
-                // التحقق من تأكيد البريد الإلكتروني للعضو
-                if (!member.EmailConfirmed)
-                {
-                    throw new Exception("The selected member has not confirmed their email address and cannot be assigned a task.");
-                }
+            // التأكد من أن الـ DTO المرسل صحيح
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-                // إنشاء التاسك
-                var task = new Models.Task
-                {
-                    OSSNumber = model.OSSNumber,
-                    CaseSource = model.CaseSource, // تحويل enum إلى string
-                    Priority = model.Priority,
-                    Type = model.Type, // تحويل النوع بناءً على الـ DTO
-                    CreatedAt = DateTime.UtcNow,
-                    UserID = member.Id
-                };
+            // idالبحث عن العضو بناءً على ال
 
-                // إضافة التاسك إلى قاعدة البيانات
+            var member = await context.Users
+             .FirstOrDefaultAsync(u => u.Id == model.SelectedMemberId && u.LeaderID == currentUser.Id && u.Role == Role.Member);
+
+
+            if (member == null)
+            {
+                return NotFound("Member not found or not assigned to your team.");
+            }
+
+            // التحقق من تأكيد البريد الإلكتروني للعضو
+            if (!member.EmailConfirmed)
+            {
+                throw new Exception("The selected member has not confirmed their email address and cannot be assigned a task.");
+            }
+
+            // إنشاء التاسك
+            var task = new Models.Task
+            {
+                FRNNumber = model.FRNNumber,
+                OSSNumber = model.OSSNumber,
+                Title = model.Title,
+                CaseSource = model.CaseSource, // تحويل enum إلى string
+                Priority = model.Priority,
+                Type = model.Type, // تحويل النوع بناءً على الـ DTO
+                CreatedAt = DateTime.UtcNow,
+                UserID = member.Id
+            };
+
+            // إضافة التاسك إلى قاعدة البيانات
+            try
+            {
                 context.Tasks.Add(task);
                 await context.SaveChangesAsync();
 
@@ -80,9 +85,13 @@ namespace WebApplicationFlowSync.Controllers
                     Message = "Task created successfully.",
                     TaskId = task.FRNNumber
                 });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException?.Message ?? ex.Message);
+            }
         }
-
-        [HttpGet("all-tasks")]
+            [HttpGet("all-tasks")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetAllTasks([FromQuery] TaskStatus? type)
         {

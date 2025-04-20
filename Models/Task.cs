@@ -6,12 +6,13 @@ namespace WebApplicationFlowSync.Models
     public class Task
     {
         [Key]
+        public int id { get; set; }
         public int FRNNumber { get; set; }
         [Required]
         public string OSSNumber { get; set; }
 
         [Required]
-        public string Tiltle { get; set; }
+        public string Title { get; set; }
         [Required]
         public CaseSource CaseSource { get; set; }
 

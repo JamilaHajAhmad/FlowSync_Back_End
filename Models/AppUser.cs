@@ -43,6 +43,15 @@ namespace WebApplicationFlowSync.Models
 
     // الطلبات التي استلمها هذا المستخدم كـ Leader
     public ICollection<PendingMemberRequest>? ReceivedJoinRequests { get; set; }
+
+    public DateTime? DateOfBirth { get; set;}
+
+
+    [MaxLength(20)]
+    public string? Phone { get; set; }
+
+    [MaxLength(500)]
+    public string? Bio { get; set; }
 }
 
 public enum Role
@@ -56,5 +65,5 @@ public enum UserStatus
     Temporarilyleave,
     Annuallyleave,
     OnDuty
-  }
+ }
 }

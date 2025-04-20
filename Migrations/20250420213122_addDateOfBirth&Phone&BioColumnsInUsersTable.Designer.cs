@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplicationFlowSync.Data;
 
@@ -11,9 +12,11 @@ using WebApplicationFlowSync.Data;
 namespace WebApplicationFlowSync.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250420213122_addDateOfBirth&Phone&BioColumnsInUsersTable")]
+    partial class addDateOfBirthPhoneBioColumnsInUsersTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -335,11 +338,11 @@ namespace WebApplicationFlowSync.Migrations
 
             modelBuilder.Entity("WebApplicationFlowSync.Models.Task", b =>
                 {
-                    b.Property<int>("id")
+                    b.Property<int>("FRNNumber")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FRNNumber"));
 
                     b.Property<int>("CaseSource")
                         .HasColumnType("int");
@@ -350,9 +353,6 @@ namespace WebApplicationFlowSync.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("FRNNumber")
-                        .HasColumnType("int");
-
                     b.Property<string>("OSSNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -360,7 +360,7 @@ namespace WebApplicationFlowSync.Migrations
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("Tiltle")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -371,7 +371,7 @@ namespace WebApplicationFlowSync.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("id");
+                    b.HasKey("FRNNumber");
 
                     b.HasIndex("UserID");
 
