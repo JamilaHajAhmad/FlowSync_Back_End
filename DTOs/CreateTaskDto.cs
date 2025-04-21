@@ -8,7 +8,7 @@ namespace WebApplicationFlowSync.DTOs
         {
 
             [Required]
-             public int FRNNumber { get; set; }
+             public string FRNNumber { get; set; }
             [Required]
             public string OSSNumber { get; set; }
             [Required]

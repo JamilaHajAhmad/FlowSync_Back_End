@@ -15,7 +15,7 @@ namespace WebApplicationFlowSync.Models
     public UserStatus Status { get; set; } = UserStatus.OnDuty;
 
 
-    public string? Major { get; set; }
+    public Major? Major { get; set; }
 
     [Required, MaxLength(20)]
     public Role Role { get; set; } // "Leader" أو "Member"
@@ -46,12 +46,15 @@ namespace WebApplicationFlowSync.Models
 
     public DateTime? DateOfBirth { get; set;}
 
+     public DateTime? JoinedAt { get; set; }
 
-    [MaxLength(20)]
+
+        [MaxLength(20)]
     public string? Phone { get; set; }
 
     [MaxLength(500)]
     public string? Bio { get; set; }
+
 }
 
 public enum Role
@@ -66,4 +69,19 @@ public enum UserStatus
     Annuallyleave,
     OnDuty
  }
+
+    public enum Major
+    {
+        MechanicalEngineering,       // هندسة ميكانيكية - لتحليل الحركات والاصطدامات
+        ElectricalEngineering,       // هندسة كهربائية - لفحص الأعطال أو التوصيلات اللي قد تسبب حرائق
+        CivilEngineering,            // هندسة مدنية - لفحص المباني والجسور والانهيارات
+        StructuralEngineering,       // هندسة إنشائية - تحليل الهياكل بعد الانهيارات
+        ChemicalEngineering,         // هندسة كيميائية - لفحص التفاعلات والانفجارات
+        ComputerForensics,           // هندسة/تحليل أدلة رقمية
+        AudioForensics,              // تحليل تسجيلات صوتية
+        ImageVideoForensics,         // تحليل الصور والفيديو
+        GeneticForensics,            // تحليل DNA
+        FireForensics,               // تحقيقات في مسببات الحرائق
+        AutomotiveForensics          // تحليل حوادث السيارات من منظور هندسي
+    }
 }

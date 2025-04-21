@@ -63,7 +63,8 @@ namespace WebApplicationFlowSync.Controllers
                 Email = model.Email,
                 Role = model.Role,
                 UserName = model.Email,
-                EmailConfirmed = false
+                EmailConfirmed = false,
+                JoinedAt = model.Role == Role.Leader ? DateTime.UtcNow : null
             };
 
             try

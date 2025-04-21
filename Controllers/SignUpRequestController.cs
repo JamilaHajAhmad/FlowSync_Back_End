@@ -80,6 +80,8 @@ namespace WebApplicationFlowSync.Controllers
             // الربط بين القائد والعضو
             member.LeaderID = currentLeader.Id;
             context.SaveChanges();
+            member.JoinedAt = DateTime.UtcNow;
+            context.SaveChanges();
 
             if (member != null)
             {
@@ -117,6 +119,7 @@ namespace WebApplicationFlowSync.Controllers
             var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
             // رفض الطلب
             pendingRequest.RequestStatus = RequestStatus.Rejected;
+            context.SaveChanges();
             //حذف الطلب 
             //context.PendingMemberRequests.Remove(pendingRequest);
             await context.SaveChangesAsync(); /// نحفظ هنا قبل حذف العضو

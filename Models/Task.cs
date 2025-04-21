@@ -7,7 +7,7 @@ namespace WebApplicationFlowSync.Models
     {
         [Key]
         public int id { get; set; }
-        public int FRNNumber { get; set; }
+        public string FRNNumber { get; set; }
         [Required]
         public string OSSNumber { get; set; }
 
