@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -11,6 +10,7 @@ using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.services.EmailService;
 using WebApplicationFlowSync.services;
 using Task = System.Threading.Tasks.Task;
+using System.Text.Json.Serialization;
 
 namespace WebApplicationFlowSync
 {
@@ -50,7 +50,11 @@ namespace WebApplicationFlowSync
 
 
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

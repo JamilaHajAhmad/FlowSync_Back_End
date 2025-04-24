@@ -42,6 +42,7 @@ namespace WebApplicationFlowSync.Controllers
                 user.Phone,
                 user.Major,
                 user.Status,
+                user.JoinedAt,
                 user.Bio,
                 user.PictureURL
             };

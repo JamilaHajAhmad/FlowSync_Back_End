@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
-using WebApplicationFlowSync.Migrations;
 using WebApplicationFlowSync.Models;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
@@ -69,7 +68,7 @@ namespace WebApplicationFlowSync.Controllers
                 Title = model.Title,
                 CaseSource = model.CaseSource, // تحويل enum إلى string
                 Priority = model.Priority,
-                Type = model.Type, // تحويل النوع بناءً على الـ DTO
+                Type = TaskStatus.Opened, // تحويل النوع بناءً على الـ DTO
                 CreatedAt = DateTime.UtcNow,
                 UserID = member.Id
             };

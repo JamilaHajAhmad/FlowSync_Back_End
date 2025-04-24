@@ -75,13 +75,5 @@ public enum UserStatus
         MechanicalEngineering,       // هندسة ميكانيكية - لتحليل الحركات والاصطدامات
         ElectricalEngineering,       // هندسة كهربائية - لفحص الأعطال أو التوصيلات اللي قد تسبب حرائق
         CivilEngineering,            // هندسة مدنية - لفحص المباني والجسور والانهيارات
-        StructuralEngineering,       // هندسة إنشائية - تحليل الهياكل بعد الانهيارات
-        ChemicalEngineering,         // هندسة كيميائية - لفحص التفاعلات والانفجارات
-        ComputerForensics,           // هندسة/تحليل أدلة رقمية
-        AudioForensics,              // تحليل تسجيلات صوتية
-        ImageVideoForensics,         // تحليل الصور والفيديو
-        GeneticForensics,            // تحليل DNA
-        FireForensics,               // تحقيقات في مسببات الحرائق
-        AutomotiveForensics          // تحليل حوادث السيارات من منظور هندسي
     }
 }
