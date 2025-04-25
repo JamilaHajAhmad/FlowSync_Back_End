@@ -8,7 +8,7 @@ namespace WebApplicationFlowSync.DTOs
         public string? LastName { get; set; }
         public string? Email { get; set; }
         public DateTime? DateOfBirth { get; set; }
-        public Major? Major { get; set; }
+        public string? Major { get; set; }
         public string? Address { get; set; }
         public string? PictureURL { get; set; }
         public string? Phone { get; set; }

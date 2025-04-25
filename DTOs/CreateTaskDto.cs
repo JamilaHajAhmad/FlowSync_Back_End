@@ -16,7 +16,7 @@ namespace WebApplicationFlowSync.DTOs
         [Required]
             public CaseSource CaseSource { get; set; }
 
-            public CaseType? CaseType { get; set; }
+            public string? CaseType { get; set; }
 
             [Required]
             public TaskPriority Priority { get; set; }

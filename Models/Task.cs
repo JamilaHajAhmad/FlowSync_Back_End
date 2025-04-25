@@ -15,7 +15,7 @@ namespace WebApplicationFlowSync.Models
         [Required]
         public CaseSource CaseSource { get; set; }
 
-        public CaseType? CaseType { get; set; }
+        public string? CaseType { get; set; }
         public TaskStatus Type { get; set; } = TaskStatus.Opened;
         public TaskPriority Priority { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -44,40 +44,32 @@ namespace WebApplicationFlowSync.Models
         Frozen     // مجمدة بعد طلب من المستخدم
     }
 
-    public enum CaseSource
+       public enum CaseSource
     {
-        // Traditional Police Stations
-        NaifPoliceStation,
-        AlMuraqqabatPoliceStation,
-        AlQusaisPoliceStation,
-        AlRashidiyaPoliceStation,
-        JebelAliPoliceStation,
-        AlBarshaPoliceStation,
-        PortsPoliceStation,
-        AlFuqaaPoliceStation,
-        LahbabPoliceStation,
-        AlRaffaPoliceStation,
-
-        // Smart Police Stations (SPS)
-        SmartPoliceStation_LaMer,
-        SmartPoliceStation_CityWalk,
-        SmartPoliceStation_PalmJumeirah,
-        SmartPoliceStation_DubaiDesignDistrict,
-        SmartPoliceStation_Hatta
-    }
-
-    public enum CaseType
-    {
-        MechanicalEngineering,       // هندسة ميكانيكية - لتحليل الحركات والاصطدامات
-        ElectricalEngineering,       // هندسة كهربائية - لفحص الأعطال أو التوصيلات اللي قد تسبب حرائق
-        CivilEngineering,            // هندسة مدنية - لفحص المباني والجسور والانهيارات
-        StructuralEngineering,       // هندسة إنشائية - تحليل الهياكل بعد الانهيارات
-        ChemicalEngineering,         // هندسة كيميائية - لفحص التفاعلات والانفجارات
-        ComputerForensics,           // هندسة/تحليل أدلة رقمية
-        AudioForensics,              // تحليل تسجيلات صوتية
-        ImageVideoForensics,         // تحليل الصور والفيديو
-        GeneticForensics,            // تحليل DNA
-        FireForensics,               // تحقيقات في مسببات الحرائق
-        AutomotiveForensics          // تحليل حوادث السيارات من منظور هندسي
+        JebelAli,             // جبل علي
+        AlRaffa,              // الرفاعة
+        AlRashidiya,          // الراشدية
+        AlBarsha,             // البرشاء
+        BurDubai,             // بر دبي
+        Lahbab,               // لهباب
+        AlFuqaa,              // الفقع
+        Ports,                // الموانئ
+        AlQusais,             // القصيص
+        AlMuraqqabat,         // المرقبات
+        Naif,                 // نايف
+        AlKhawanij,           // الخوانيج
+        Hatta,                // حتا
+        AirportSecurity,      // أمن المطارات
+        PublicProsecution,    // النيابة العامة
+        DubaiMunicipality,    // بلدية دبي
+        DubaiCustoms,         // جمارك دبي
+        RasAlKhaimah,         // رأس الخيمة
+        UmmAlQuwain,          // أم القيوين
+        Ajman,                // عجمان
+        AbuDhabi,             // أبو ظبي
+        Fujairah,             // الفجيرة
+        Sharjah,              // الشارقة
+        Forensics,            // الطب الشرعي
+        MinistryOfDefense     // وزارة الدفاع
     }
 }

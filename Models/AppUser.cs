@@ -15,7 +15,7 @@ namespace WebApplicationFlowSync.Models
     public UserStatus Status { get; set; } = UserStatus.OnDuty;
 
 
-    public Major? Major { get; set; }
+    public string? Major { get; set; }
 
     [Required, MaxLength(20)]
     public Role Role { get; set; } // "Leader" أو "Member"
@@ -70,10 +70,4 @@ public enum UserStatus
     OnDuty
  }
 
-    public enum Major
-    {
-        MechanicalEngineering,       // هندسة ميكانيكية - لتحليل الحركات والاصطدامات
-        ElectricalEngineering,       // هندسة كهربائية - لفحص الأعطال أو التوصيلات اللي قد تسبب حرائق
-        CivilEngineering,            // هندسة مدنية - لفحص المباني والجسور والانهيارات
-    }
 }
