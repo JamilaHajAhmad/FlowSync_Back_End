@@ -67,6 +67,7 @@ namespace WebApplicationFlowSync.Controllers
                 OSSNumber = model.OSSNumber,
                 Title = model.Title,
                 CaseSource = model.CaseSource, // تحويل enum إلى string
+                CaseType = model.CaseType,
                 Priority = model.Priority,
                 Type = TaskStatus.Opened, // تحويل النوع بناءً على الـ DTO
                 CreatedAt = DateTime.UtcNow,
@@ -110,6 +111,7 @@ namespace WebApplicationFlowSync.Controllers
                     FRNNumber = t.FRNNumber,
                     OSSNumber = t.OSSNumber,
                     CaseSource = t.CaseSource,
+                    CaseType = t.CaseType,
                     Priority = t.Priority,
                     Status = t.Type,
                     OpenDate = t.CreatedAt,
@@ -152,6 +154,7 @@ namespace WebApplicationFlowSync.Controllers
                     FRNNumber = t.FRNNumber,
                     OSSNumber = t.OSSNumber,
                     CaseSource = t.CaseSource,
+                    CaseType = t.CaseType,
                     Priority = t.Priority,
                     Type = t.Type,
                     CreatedAt = t.CreatedAt
@@ -160,6 +163,5 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok(tasks);
         }
-
     }
 }

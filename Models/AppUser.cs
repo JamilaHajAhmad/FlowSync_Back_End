@@ -20,10 +20,10 @@ namespace WebApplicationFlowSync.Models
     [Required, MaxLength(20)]
     public Role Role { get; set; } // "Leader" أو "Member"
 
-    public string? PictureURL { get; set; }
+        public string? PictureURL { get; set; } = null;
 
-    [MaxLength(255)]
-    public string? Address { get; set; }
+        [MaxLength(255)]
+        public string? Address { get; set; } = null;
     public string? LeaderID { get; set; }
 
 
@@ -44,16 +44,15 @@ namespace WebApplicationFlowSync.Models
     // الطلبات التي استلمها هذا المستخدم كـ Leader
     public ICollection<PendingMemberRequest>? ReceivedJoinRequests { get; set; }
 
-    public DateTime? DateOfBirth { get; set;}
+        public DateTime? DateOfBirth { get; set; } = null;
 
-     public DateTime? JoinedAt { get; set; }
-
+        public DateTime? JoinedAt { get; set; } = null;
 
         [MaxLength(20)]
-    public string? Phone { get; set; }
+        public string? Phone { get; set; } = null;
 
-    [MaxLength(500)]
-    public string? Bio { get; set; }
+        [MaxLength(500)]
+        public string? Bio { get; set; } = null;
 
 }
 

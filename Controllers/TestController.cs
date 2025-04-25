@@ -7,5 +7,9 @@ namespace WebApplicationFlowSync.Controllers
     [ApiController]
     public class TestController : ControllerBase
     {
+        public static void RunTest()
+        {
+            Console.WriteLine("تم تنفيذ التست بنجاح ");
+        }
     }
 }
