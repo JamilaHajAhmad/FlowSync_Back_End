@@ -7,19 +7,20 @@ namespace WebApplicationFlowSync.DTOs
         public class CreateTaskDto
         {
 
-            [Required]
+             [Required]
              public string FRNNumber { get; set; }
             [Required]
             public string OSSNumber { get; set; }
             [Required]
             public string Title { get; set; }
-        [Required]
+            [Required]
             public CaseSource CaseSource { get; set; }
 
-            public string? CaseType { get; set; }
+             public string? CaseType { get; set; } = null;
 
             [Required]
             public TaskPriority Priority { get; set; }
+
             [Required]
             public TaskStatus Type { get; set; }
 
