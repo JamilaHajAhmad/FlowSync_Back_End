@@ -1,8 +1,11 @@
-﻿namespace WebApplicationFlowSync.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebApplicationFlowSync.Models
 {
     public class PendingMemberRequest
     {
-        public int Id { get; set; }
+        [Key]
+        public int RequestId { get; set; }
 
         // العضو مقدم الطلب
         public string? MemberId { get; set; }
@@ -21,7 +24,7 @@
         public RequestStatus RequestStatus { get; set; } = RequestStatus.Pending;
 
     }
-
+  
     public enum RequestType
     {
         Base,

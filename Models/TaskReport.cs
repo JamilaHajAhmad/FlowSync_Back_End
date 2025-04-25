@@ -12,7 +12,7 @@ namespace WebApplicationFlowSync.Models
         public Report? Report { get; set; }
 
         [Key, Column(Order = 1)]
-        public int FRNNumber { get; set; }
+        public string FRNNumber { get; set; }
 
         [ForeignKey("FRNNumber")]
         public Task? Task { get; set; }

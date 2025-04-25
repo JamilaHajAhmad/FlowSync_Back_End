@@ -75,7 +75,7 @@ namespace WebApplicationFlowSync.Data
             //تعديل اسم عمود FRN
             modelBuilder.Entity<CompleteTaskRequest>()
            .Property(c => c.FRNNumber)
-            .HasColumnName("Complete_FRNNumber");
+            .HasColumnName("Complete_TaskId");
 
             modelBuilder.Entity<FreezeTaskRequest>()
            .Property(f => f.FRNNumber)

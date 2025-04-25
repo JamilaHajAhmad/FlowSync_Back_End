@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +33,7 @@ namespace WebApplicationFlowSync.Controllers
                 .OfType<SignUpRequest>()
                 .Select(r => new
                 {
-                    r.Id,
+                    r.RequestId,
                     r.MemberName,
                     r.Email,
                     r.RequestedAt,
@@ -51,7 +50,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> ApproveMember(int requestId)
         {
             var pendingRequest = await context.PendingMemberRequests
-                .FirstOrDefaultAsync(r => r.Id == requestId);
+                .FirstOrDefaultAsync(r => r.RequestId == requestId);
             if (pendingRequest == null)
             {
                 throw new Exception("Membership request not found.");
@@ -100,7 +99,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> RejectMember(int requestId)
         {
             var pendingRequest = await context.PendingMemberRequests
-                .FirstOrDefaultAsync(r => r.Id == requestId);
+                .FirstOrDefaultAsync(r => r.RequestId == requestId);
 
             if (pendingRequest == null)
             {

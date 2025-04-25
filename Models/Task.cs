@@ -6,7 +6,6 @@ namespace WebApplicationFlowSync.Models
     public class Task
     {
         [Key]
-        public int id { get; set; }
         public string FRNNumber { get; set; }
         [Required]
         public string OSSNumber { get; set; }

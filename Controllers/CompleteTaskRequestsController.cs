@@ -42,7 +42,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> ApproveCompleteTaskRequest(int requestId)
         {
             var request = await context.PendingMemberRequests.OfType<CompleteTaskRequest>()
-                .FirstOrDefaultAsync(r => r.Id == requestId);
+                .FirstOrDefaultAsync(r => r.RequestId == requestId);
             if (request == null) return NotFound("The request does not exist.");
 
             request.RequestStatus = RequestStatus.Approved;
@@ -55,7 +55,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> RejectCompleteTaskRequest(int requestId)
         {
             var request = await context.PendingMemberRequests.OfType<CompleteTaskRequest>()
-                .FirstOrDefaultAsync(r => r.Id == requestId);
+                .FirstOrDefaultAsync(r => r.RequestId == requestId);
             if (request == null) return NotFound("The request does not exist.");
 
             request.RequestStatus = RequestStatus.Rejected;
