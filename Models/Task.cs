@@ -31,17 +31,17 @@ namespace WebApplicationFlowSync.Models
 
     public enum TaskPriority
     {
-        Urgant,//قضايا السياح 48 ساعة 
-        Regular, //10 ايام عمل
-        Important //10 ايام عمل
+        Urgent,//قضايا السياح 48 ساعة     0
+        Regular, //1     10 ايام عمل 
+        Important //2    ايام عمل
     }
 
     public enum TaskStatus
     {
-        Opened,    // مفتوحة
-        Completed, // مكتملة
-        Delayed,   // متأخرة
-        Frozen     // مجمدة بعد طلب من المستخدم
+        Opened,    // 0
+        Completed, // 1
+        Delayed,   // 2
+        Frozen     // 3
     }
 
        public enum CaseSource

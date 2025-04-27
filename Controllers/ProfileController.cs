@@ -50,7 +50,7 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(profile);
         }
 
-        [HttpPut("edit-profile")]
+        [HttpPatch("edit-profile")]
         [Authorize]
         public async Task<IActionResult> EditProfile([FromBody] EditProfileDto dto)
         {
@@ -59,20 +59,43 @@ namespace WebApplicationFlowSync.Controllers
             if (user == null)
                 return Unauthorized("User not found.");
 
-            user.FirstName = dto.FirstName;
-            user.LastName = dto.LastName;
-            user.Email = dto.Email;
-            user.DateOfBirth = dto.DateOfBirth;
-            user.Major = dto.Major;
-            user.Address = dto.Address;
-            user.PictureURL = dto.PictureURL;
-            user.Phone = dto.Phone;
-            //user.Status = dto.Status.Value;
-            if (dto.Status.HasValue)
-            {
-                user.Status = dto.Status.Value;
-            }
-            user.Bio = dto.Bio;
+            //user.FirstName = dto.FirstName;
+            //user.LastName = dto.LastName;
+            //user.Email = dto.Email;
+            //user.DateOfBirth = dto.DateOfBirth;
+            //user.Major = dto.Major;
+            //user.Address = dto.Address;
+            //user.PictureURL = dto.PictureURL;
+            //user.Phone = dto.Phone;
+            ////user.Status = dto.Status.Value;
+            //if (dto.Status.HasValue)
+            //{
+            //    user.Status = dto.Status.Value;
+            //}
+            //user.Bio = dto.Bio;
+
+            //user.FirstName = dto.FirstName ?? user.FirstName;
+            //user.LastName = dto.LastName ?? user.LastName;
+            //user.Email = dto.Email ?? user.Email;
+            //user.DateOfBirth = dto.DateOfBirth ?? user.DateOfBirth;
+            //user.Major = dto.Major ?? user.Major;
+            //user.Address = dto.Address ?? user.Address;
+            //user.PictureURL = dto.PictureURL ?? user.PictureURL;
+            //user.Phone = dto.Phone ?? user.Phone;
+            //user.Status = dto.Status ?? user.Status;
+            //user.Bio = dto.Bio ?? user.Bio;
+
+            user.FirstName = string.IsNullOrWhiteSpace(dto.FirstName) ? user.FirstName : dto.FirstName;
+            user.LastName = string.IsNullOrWhiteSpace(dto.LastName) ? user.LastName : dto.LastName;
+            user.Email = string.IsNullOrWhiteSpace(dto.Email) ? user.Email : dto.Email;
+            user.DateOfBirth = dto.DateOfBirth ?? user.DateOfBirth;
+            user.Major = string.IsNullOrWhiteSpace(dto.Major) ? user.Major : dto.Major;
+            user.Address = string.IsNullOrWhiteSpace(dto.Address) ? user.Address : dto.Address;
+            user.PictureURL = string.IsNullOrWhiteSpace(dto.PictureURL) ? user.PictureURL : dto.PictureURL;
+            user.Phone = string.IsNullOrWhiteSpace(dto.Phone) ? user.Phone : dto.Phone;
+            user.Status = dto.Status ?? user.Status;
+            user.Bio = string.IsNullOrWhiteSpace(dto.Bio) ? user.Bio : dto.Bio;
+
 
             var result = await userManager.UpdateAsync(user);
 

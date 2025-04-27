@@ -108,6 +108,7 @@ namespace WebApplicationFlowSync.Controllers
             var tasks = await query
                 .Select(t => new
                 {
+                    TaskTitle = t.Title,
                     FRNNumber = t.FRNNumber,
                     OSSNumber = t.OSSNumber,
                     CaseSource = t.CaseSource,

@@ -41,7 +41,7 @@ namespace WebApplicationFlowSync.Controllers
                 members.Add(new
                 {
                     user.Id,
-                    FullName= user.FirstName + "" + user.LastName,
+                    FullName= user.FirstName + " " + user.LastName,
                     user.Status,
                     user.Email,
                     OngoingTasks = activeTasksCount,

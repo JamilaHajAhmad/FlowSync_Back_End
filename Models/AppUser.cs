@@ -12,7 +12,7 @@ namespace WebApplicationFlowSync.Models
     [Required, MaxLength(50)]
     public string LastName { get; set; }
 
-    public UserStatus Status { get; set; } = UserStatus.OnDuty;
+    public UserStatus Status { get; set; } = UserStatus.On_Duty;
 
 
     public string? Major { get; set; }
@@ -61,12 +61,11 @@ public enum Role
     Leader,
     Member
 }
-
-public enum UserStatus
-{
-    Temporarilyleave,
-    Annuallyleave,
-    OnDuty
- }
+ public enum UserStatus
+ {
+     Temporarily_Leave,
+     Annually_Leave,
+     On_Duty
+    }
 
 }
