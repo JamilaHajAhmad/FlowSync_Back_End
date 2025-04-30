@@ -45,32 +45,33 @@ namespace WebApplicationFlowSync.Controllers
                     user.Status,
                     user.Email,
                     OngoingTasks = activeTasksCount,
-                    DeleteEndpoint = $"apiMember/MemberManagementController/delete-member/{user.Id}"
+                    user.PictureURL
+                    //DeleteEndpoint = $"apiMember/MemberManagementController/delete-member/{user.Id}"
                 });
             }
 
             return Ok(members);
         }
 
-        [HttpDelete("delete-member/{memberId}")]
-        public async Task<IActionResult> DeleteMember(string memberId)
-        {
-            var member = await userManager.FindByIdAsync(memberId);
+        //[HttpDelete("delete-member/{memberId}")]
+        //public async Task<IActionResult> DeleteMember(string memberId)
+        //{
+        //    var member = await userManager.FindByIdAsync(memberId);
 
-            if (member == null)
-                return NotFound("User not found.");
+        //    if (member == null)
+        //        return NotFound("User not found.");
 
-            if (member.Role != Role.Member)
-                throw new Exception("A user who is not a member cannot be deleted.");
+        //    if (member.Role != Role.Member)
+        //        throw new Exception("A user who is not a member cannot be deleted.");
 
-            // حذف العضو
-            var result = await userManager.DeleteAsync(member);
-            context.SaveChanges();
-            if (!result.Succeeded)
-                throw new Exception("An error occurred while trying to delete member.");
+        //    // حذف العضو
+        //    var result = await userManager.DeleteAsync(member);
+        //    context.SaveChanges();
+        //    if (!result.Succeeded)
+        //        throw new Exception("An error occurred while trying to delete member.");
 
-            return Ok("Member has been successfully deleted.");
-        }
+        //    return Ok("Member has been successfully deleted.");
+        //}
 
         [HttpGet("members-with-ongoing-tasks")]
         public async Task<IActionResult> GetMembersWithOngoingTasks()
@@ -80,8 +81,9 @@ namespace WebApplicationFlowSync.Controllers
                 .Include(u => u.Tasks)
                 .Select(u => new
                 {
-                    Id = u.Id,
+                    Id = u.Id,   
                     FullName = u.FirstName + " " + u.LastName,
+                    PictureURL = u.PictureURL,
                     OngoingTasks = u.Tasks.Count(t => t.Type == TaskStatus.Opened)
                 })
                 .ToListAsync();

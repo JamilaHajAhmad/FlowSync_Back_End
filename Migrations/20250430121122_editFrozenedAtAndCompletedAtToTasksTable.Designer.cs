@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplicationFlowSync.Data;
 
@@ -11,9 +12,11 @@ using WebApplicationFlowSync.Data;
 namespace WebApplicationFlowSync.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250430121122_editFrozenedAtAndCompletedAtToTasksTable")]
+    partial class editFrozenedAtAndCompletedAtToTasksTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,7 +308,7 @@ namespace WebApplicationFlowSync.Migrations
 
                     b.ToTable("PendingMemberRequests");
 
-                    b.HasDiscriminator<int>("Type").HasValue(0);
+                    b.HasDiscriminator<int>("Type");
 
                     b.UseTphMappingStrategy();
                 });
@@ -353,11 +356,8 @@ namespace WebApplicationFlowSync.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("FrozenAt")
+                    b.Property<DateTime?>("FrozenedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OSSNumber")
                         .IsRequired()
@@ -365,9 +365,6 @@ namespace WebApplicationFlowSync.Migrations
 
                     b.Property<int>("Priority")
                         .HasColumnType("int");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -414,10 +411,9 @@ namespace WebApplicationFlowSync.Migrations
                         .HasColumnName("Complete_TaskId");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasDiscriminator().HasValue(2);
+                    b.HasDiscriminator().HasValue(1);
                 });
 
             modelBuilder.Entity("WebApplicationFlowSync.Models.Requests.FreezeTaskRequest", b =>
@@ -433,14 +429,14 @@ namespace WebApplicationFlowSync.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasDiscriminator().HasValue(3);
+                    b.HasDiscriminator().HasValue(2);
                 });
 
             modelBuilder.Entity("WebApplicationFlowSync.Models.Requests.SignUpRequest", b =>
                 {
                     b.HasBaseType("WebApplicationFlowSync.Models.PendingMemberRequest");
 
-                    b.HasDiscriminator().HasValue(1);
+                    b.HasDiscriminator().HasValue(0);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -91,7 +91,7 @@ namespace WebApplicationFlowSync.Controllers
                 return StatusCode(500, ex.InnerException?.Message ?? ex.Message);
             }
         }
-            [HttpGet("all-tasks")]
+        [HttpGet("all-tasks")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetAllTasks([FromQuery] TaskStatus? type)
         {
@@ -116,6 +116,10 @@ namespace WebApplicationFlowSync.Controllers
                     Priority = t.Priority,
                     Status = t.Type,
                     OpenDate = t.CreatedAt,
+                    CompletedAt = t.CompletedAt,
+                    FrozenAt = t.FrozenAt,
+                    Reason = t.Reason,
+                    Notes = t.Notes,
                     AssignedMember = new
                     {
                         Id = t.User.Id,
@@ -160,10 +164,29 @@ namespace WebApplicationFlowSync.Controllers
                     Priority = t.Priority,
                     Type = t.Type,
                     CreatedAt = t.CreatedAt,
+                    CompletedAt = t.CompletedAt,
+                    FrozenAt = t.FrozenAt,
+                    Reason = t.Reason,
+                    Notes = t.Notes
                 })
                 .ToListAsync();
 
             return Ok(tasks);
         }
+
+        [HttpPost("mark-delayed-task")]
+        public async Task<IActionResult> ConvertToDelayed([FromBody] DelayTaskDto dto)
+        {
+            var task = await context.Tasks.FirstOrDefaultAsync(t => t.FRNNumber == dto.FRNNumber);
+
+            if (task == null)
+                return NotFound("task can not be found.");
+
+            task.Type = TaskStatus.Delayed;
+            await context.SaveChangesAsync();
+
+            return Ok("The task status has been changed to delayed.");
+        }
+
     }
 }
