@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using WebApplicationFlowSync.DTOs;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 
 namespace WebApplicationFlowSync.Controllers
 {
@@ -18,7 +19,7 @@ namespace WebApplicationFlowSync.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
 
-        public FreezeTaskRequestsController(ApplicationDbContext context , UserManager<AppUser> userManager)
+        public FreezeTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager)
         {
             this.context = context;
             this.userManager = userManager;
@@ -37,6 +38,8 @@ namespace WebApplicationFlowSync.Controllers
                 var task = await context.Tasks.FindAsync(dto.FRNNumber);
                 if (task == null || task.UserID != user.Id)
                     throw new Exception("Invalid task.");
+
+
 
                 var request = new FreezeTaskRequest
                 {
@@ -81,11 +84,11 @@ namespace WebApplicationFlowSync.Controllers
 
             // التأكد من أن الطلب لم تتم معالجته سابقًا
             if (request.RequestStatus != RequestStatus.Pending)
-            throw new Exception("This request has already been processed.");
+                throw new Exception("This request has already been processed.");
 
             // تحديث معلومات الطلب
             request.RequestStatus = RequestStatus.Approved;
-            request.LeaderId = user.Id;
+            //request.LeaderId = user.Id;
 
             // جلب التاسك المرتبط باستخدام TaskId
             var task = await context.Tasks
@@ -96,6 +99,7 @@ namespace WebApplicationFlowSync.Controllers
 
             // تغيير حالة المهمة إلى مجمدة
             task.Type = TaskStatus.Frozen;
+            task.FrozenAt = DateTime.UtcNow;
 
             await context.SaveChangesAsync();
 
@@ -152,6 +156,25 @@ namespace WebApplicationFlowSync.Controllers
                 .ToListAsync();
 
             return Ok(requests);
+        }
+
+        [HttpPost("unfreeze-task")]
+        [Authorize (Roles ="Member")]
+        public async Task<IActionResult> UnfreezeTask([FromBody]UnfreezeTaskDto dto)
+        {
+            var member = await userManager.GetUserAsync(User);
+            if (member == null)
+                return Unauthorized();
+
+            var task = await context.Tasks.FirstOrDefaultAsync(t => t.FRNNumber == dto.FRNNumber && t.Type == TaskStatus.Frozen);
+            if (task == null)
+                return NotFound("task can not be found.");
+
+            task.Type = TaskStatus.Opened;
+            task.FrozenAt = null;
+            await context.SaveChangesAsync();
+
+           return Ok("Task has been unfrozen successfully");
         }
 
     }

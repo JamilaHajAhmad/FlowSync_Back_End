@@ -87,5 +87,6 @@ namespace WebApplicationFlowSync.Data
         public DbSet<Report> Reports { get; set; }
         public DbSet<TaskReport> TasksReports { get; set; }
         public DbSet<PendingMemberRequest> PendingMemberRequests { get; set; }
+        public DbSet<SystemSetting> SystemSettings { get; set; }
     }
 }

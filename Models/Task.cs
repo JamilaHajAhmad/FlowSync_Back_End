@@ -19,6 +19,12 @@ namespace WebApplicationFlowSync.Models
         public TaskStatus Type { get; set; } = TaskStatus.Opened;
         public TaskPriority Priority { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime? CompletedAt { get; set; } = null;
+        public DateTime? FrozenAt { get; set; } = null;
+
+        public string? Reason { get; set; } 
+
+        public string? Notes { get; set; } 
 
         public string UserID { get; set; }
         [ForeignKey("UserID")]
