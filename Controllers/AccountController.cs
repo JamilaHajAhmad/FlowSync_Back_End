@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -124,85 +122,6 @@ namespace WebApplicationFlowSync.Controllers
             }
         }
 
-        //// موافقة القائد على العضو
-        //[HttpPost("approve-member/{requestId}")]
-        //[Authorize(Roles = "Leader")]
-        //public async Task<IActionResult> ApproveMember(int requestId)
-        //{
-        //    var pendingRequest = await context.PendingMemberRequests
-        //        .FirstOrDefaultAsync(r => r.Id == requestId);
-        //    if (pendingRequest == null)
-        //    {
-        //        throw new Exception("Membership request not found.");
-        //    }
-
-        //    var currentUser = await userManager.GetUserAsync(User);
-        //    //Console.WriteLine($"Current user: {currentUser?.UserName}");  // لازم يظهر اسم
-        //    if (currentUser == null)
-        //    {
-        //        throw new Exception("User identity not verified (member information not found in the request)");
-        //    }
-
-        //    if (pendingRequest.LeaderId == null)
-        //    {
-        //        //return BadRequest("الطلب لا يحتوي على معرف القائد.");
-        //        throw new Exception("The request does not contain a leader ID.");
-        //    }
-
-        //    // الموافقة على الطلب
-        //    pendingRequest.RequestStatus = RequestStatus.Approved;
-        //    await context.SaveChangesAsync(); // حفظ التغييرات في قاعدة البيانات
-
-        //    // إرسال بريد إلكتروني للميمبر بعد الموافقة
-        //    var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
-        //    if (member != null)
-        //    {
-        //        var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);
-        //        var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = member.Id, token = confirmationToken }, Request.Scheme);
-
-        //        await SendConfirmationEmail(member.Email, "The Leader has accepted your request to join the Team. Confirm your account as a Member.", confirmationLink);
-        //    }
-
-        //    return Ok("Membership has been successfully approved, please check your email.");
-        //}
-
-
-        //[HttpPost("reject-member/{requestId}")]
-        //[Authorize(Roles = "Leader")]
-        //public async Task<IActionResult> RejectMember(int requestId)
-        //{
-        //    var pendingRequest = await context.PendingMemberRequests
-        //        .FirstOrDefaultAsync(r => r.Id == requestId);
-
-        //    if (pendingRequest == null)
-        //    {
-        //        //return NotFound("طلب العضوية غير موجود.");
-        //        throw new Exception("Membership request not found.");
-        //    }
-
-        //    // التأكد من أن القائد هو من يرفض
-        //    var currentUser = await userManager.GetUserAsync(User);
-        //    if (pendingRequest.LeaderId != currentUser.Id)
-        //    {
-        //        //return Unauthorized("أنت لست القائد المعني.");
-        //        throw new Exception("You are not the leader required in the request.");
-        //    }
-
-        //    var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
-        //    // رفض الطلب
-        //    pendingRequest.RequestStatus = RequestStatus.Rejected;
-        //    //حذف الطلب 
-        //    //context.PendingMemberRequests.Remove(pendingRequest);
-        //    await context.SaveChangesAsync(); /// نحفظ هنا قبل حذف العضو
-        //    // حذف المستخدم من النظام
-        //    if (member != null)
-        //    {
-        //        await userManager.DeleteAsync(member);
-        //        await context.SaveChangesAsync();
-        //    }
-
-        //    return Ok("The request was rejected and the member was removed from the system.");
-        //}
 
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)

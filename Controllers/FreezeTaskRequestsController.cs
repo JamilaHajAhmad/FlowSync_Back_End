@@ -100,7 +100,7 @@ namespace WebApplicationFlowSync.Controllers
             // تغيير حالة المهمة إلى مجمدة
             task.Type = TaskStatus.Frozen;
             task.FrozenAt = DateTime.UtcNow;
-
+            task.Reason = request.Reason;
             await context.SaveChangesAsync();
 
             return Ok("Freeze request approved and task status updated to Frozen.");
@@ -172,6 +172,7 @@ namespace WebApplicationFlowSync.Controllers
 
             task.Type = TaskStatus.Opened;
             task.FrozenAt = null;
+            task.Reason = null;
             await context.SaveChangesAsync();
 
            return Ok("Task has been unfrozen successfully");

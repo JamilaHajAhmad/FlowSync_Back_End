@@ -105,6 +105,7 @@ namespace WebApplicationFlowSync.Controllers
             request.RequestStatus = RequestStatus.Approved;
             task.Type = TaskStatus.Completed;
             task.CompletedAt = DateTime.UtcNow;
+            task.Notes = request.Notes;
 
             await context.SaveChangesAsync();
 
