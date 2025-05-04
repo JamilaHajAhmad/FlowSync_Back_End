@@ -37,7 +37,8 @@ namespace WebApplicationFlowSync.services.EmailService
             {
                 To = to,
                 Subject = subject,
-                Body = $"يرجى تأكيد بريدك عبر الرابط التالي: <a href=\"{link}\">{link}</a>"
+                Body = $"يرجى تأكيد بريدك عبر الرابط التالي: <a href=\"{link}\">اضغط هنا لتأكيد بريدك الإلكتروني</a>"
+
             };
             await sendEmailAsync(emailDto);
         }

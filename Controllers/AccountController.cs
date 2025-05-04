@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -317,28 +318,33 @@ namespace WebApplicationFlowSync.Controllers
         }
 
 
-        // تأكيد البريد الإلكتروني
+    
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             if (userId == null || token == null)
             {
-                throw new Exception("معرف المستخدم أو الرمز غير صالح.");
+                return BadRequest("معرف المستخدم أو الرمز غير صالح.");
             }
+            //يجب فك تشفير التوكين
+            token = WebUtility.UrlDecode(token);
+
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new Exception("المستخدم غير موجود.");
+                return NotFound("المستخدم غير موجود.");
             }
 
             var result = await userManager.ConfirmEmailAsync(user, token);
             if (!result.Succeeded)
             {
-                throw new Exception("فشل تأكيد البريد الإلكتروني.");
+                var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+                return BadRequest($"فشل تأكيد البريد الإلكتروني: {errors}");
             }
 
             return Ok("تم تأكيد البريد الإلكتروني بنجاح.");
         }
+
 
         //private async Task SendConfirmationEmail(string to, string subject, string link)
         //{

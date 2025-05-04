@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Web;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.Models.Requests;
@@ -44,7 +45,55 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(requests);
         }
 
-        // موافقة القائد على العضو
+        //// موافقة القائد على العضو
+        //[HttpPost("approve-member/{requestId}")]
+        //[Authorize(Roles = "Leader")]
+        //public async Task<IActionResult> ApproveMember(int requestId)
+        //{
+        //    var pendingRequest = await context.PendingMemberRequests
+        //        .FirstOrDefaultAsync(r => r.RequestId == requestId);
+        //    if (pendingRequest == null)
+        //    {
+        //        throw new Exception("Membership request not found.");
+        //    }
+
+        //    var currentLeader = await userManager.GetUserAsync(User);
+        //    //Console.WriteLine($"Current user: {currentUser?.UserName}");  // لازم يظهر اسم
+        //    if (currentLeader == null)
+        //    {
+        //        throw new Exception("User identity not verified (member information not found in the request)");
+        //    }
+
+        //    if (pendingRequest.LeaderId == null)
+        //    {
+        //        //return BadRequest("الطلب لا يحتوي على معرف القائد.");
+        //        throw new Exception("The request does not contain a leader ID.");
+        //    }
+
+        //    // الموافقة على الطلب
+        //    pendingRequest.RequestStatus = RequestStatus.Approved;
+        //    await context.SaveChangesAsync(); // حفظ التغييرات في قاعدة البيانات
+
+        //    // إرسال بريد إلكتروني للميمبر بعد الموافقة
+        //    var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
+
+        //    // الربط بين القائد والعضو
+        //    member.LeaderID = currentLeader.Id;
+        //    context.SaveChanges();
+        //    member.JoinedAt = DateTime.UtcNow;
+        //    context.SaveChanges();
+
+        //    if (member != null)
+        //    {
+        //        var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);
+        //        var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = member.Id, token = confirmationToken }, Request.Scheme);
+
+        //        await emailService.SendConfirmationEmail(member.Email, "The Leader has accepted your request to join the Team. Confirm your account as a Member.", confirmationLink);
+        //    }
+
+        //    return Ok("Membership has been successfully approved, please check your email.");
+        //}
+
         [HttpPost("approve-member/{requestId}")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> ApproveMember(int requestId)
@@ -57,38 +106,40 @@ namespace WebApplicationFlowSync.Controllers
             }
 
             var currentLeader = await userManager.GetUserAsync(User);
-            //Console.WriteLine($"Current user: {currentUser?.UserName}");  // لازم يظهر اسم
             if (currentLeader == null)
             {
-                throw new Exception("User identity not verified (member information not found in the request)");
+                throw new Exception("User identity not verified.");
             }
 
             if (pendingRequest.LeaderId == null)
             {
-                //return BadRequest("الطلب لا يحتوي على معرف القائد.");
                 throw new Exception("The request does not contain a leader ID.");
             }
 
-            // الموافقة على الطلب
+            // الموافقة
             pendingRequest.RequestStatus = RequestStatus.Approved;
-            await context.SaveChangesAsync(); // حفظ التغييرات في قاعدة البيانات
+            await context.SaveChangesAsync();
 
-            // إرسال بريد إلكتروني للميمبر بعد الموافقة
+            // العضو
             var member = await userManager.FindByIdAsync(pendingRequest.MemberId);
-
-            // الربط بين القائد والعضو
-            member.LeaderID = currentLeader.Id;
-            context.SaveChanges();
-            member.JoinedAt = DateTime.UtcNow;
-            context.SaveChanges();
-
-            if (member != null)
+            if (member == null)
             {
-                var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);
-                var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = member.Id, token = confirmationToken }, Request.Scheme);
-
-                await emailService.SendConfirmationEmail(member.Email, "The Leader has accepted your request to join the Team. Confirm your account as a Member.", confirmationLink);
+                return NotFound("Member not found.");
             }
+
+            member.LeaderID = currentLeader.Id;
+            member.JoinedAt = DateTime.UtcNow;
+            await context.SaveChangesAsync();
+
+            var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);
+            var encodedToken = HttpUtility.UrlEncode(confirmationToken);
+            var confirmationLink = Url.Action("ConfirmEmail", "Account", new { userId = member.Id, token = encodedToken }, Request.Scheme);
+
+            await emailService.SendConfirmationEmail(
+                member.Email,
+                "The Leader has accepted your request to join the Team. Confirm your account as a Member.",
+                confirmationLink
+            );
 
             return Ok("Membership has been successfully approved, please check your email.");
         }
