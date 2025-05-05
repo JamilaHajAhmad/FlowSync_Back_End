@@ -73,7 +73,7 @@ namespace WebApplicationFlowSync.Controllers
                 CaseType = model.CaseType,
                 Priority = model.Priority,
                 Type = TaskStatus.Opened, // تحويل النوع بناءً على الـ DTO
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
                 UserID = member.Id
             };
 

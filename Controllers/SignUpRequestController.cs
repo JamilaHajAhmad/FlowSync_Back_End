@@ -128,7 +128,7 @@ namespace WebApplicationFlowSync.Controllers
             }
 
             member.LeaderID = currentLeader.Id;
-            member.JoinedAt = DateTime.UtcNow;
+            member.JoinedAt = DateTime.Now;
             await context.SaveChangesAsync();
 
             var confirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(member);

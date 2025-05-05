@@ -54,7 +54,7 @@ namespace WebApplicationFlowSync.Controllers
                 MemberName = member.FirstName + " " + member.LastName,
                 MemberId = member.Id,
                 Email = member.Email,
-                RequestedAt = DateTime.UtcNow,
+                RequestedAt = DateTime.Now,
                 RequestStatus = RequestStatus.Pending,
                 Type = RequestType.CompleteTask
             };
@@ -113,7 +113,7 @@ namespace WebApplicationFlowSync.Controllers
 
             request.RequestStatus = RequestStatus.Approved;
             task.Type = TaskStatus.Completed;
-            task.CompletedAt = DateTime.UtcNow;
+            task.CompletedAt = DateTime.Now;
             task.Notes = request.Notes;
 
             await context.SaveChangesAsync();

@@ -52,7 +52,7 @@ namespace WebApplicationFlowSync.Controllers
                     MemberId = member.Id,
                     MemberName = member.FirstName + " " + member.LastName,
                     Email = member.Email,
-                    RequestedAt = DateTime.UtcNow,
+                    RequestedAt = DateTime.Now,
                     RequestStatus = RequestStatus.Pending,
                     Type = RequestType.FreezeTask,
                     LeaderId = member.LeaderID
@@ -108,7 +108,7 @@ namespace WebApplicationFlowSync.Controllers
 
             // تغيير حالة المهمة إلى مجمدة
             task.Type = TaskStatus.Frozen;
-            task.FrozenAt = DateTime.UtcNow;
+            task.FrozenAt = DateTime.Now;
             task.Reason = request.Reason;
             await context.SaveChangesAsync();
 
