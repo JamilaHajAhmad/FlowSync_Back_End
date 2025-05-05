@@ -97,5 +97,7 @@ namespace WebApplicationFlowSync.Data
         public DbSet<PendingMemberRequest> PendingMemberRequests { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<UserSession> UserSessions { get; set; }
+
     }
 }

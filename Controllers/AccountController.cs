@@ -148,6 +148,30 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized("Please confirm your email before logging in.");
             }
             var token = await authServices.CreateTokenAsync(user, userManager);
+
+            // الحصول على عنوان الـ IP الخاص بالمستخدم الذي أرسل الطلب الحالي
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+
+            // الحصول على معلومات المتصفح أو الجهاز (User-Agent) من هيدر الطلب
+            var userAgent = Request.Headers["User-Agent"].ToString();
+
+            // إنشاء كائن جديد من نوع UserSession لتسجيل معلومات الجلسة الحالية للمستخدم
+            var session = new UserSession
+            {
+                UserId = user.Id,            // ربط الجلسة بالمستخدم الذي سجل الدخول (بناءً على الـ Id)
+                DeviceInfo = userAgent,      // تخزين معلومات الجهاز أو المتصفح المستخدم للدخول
+                IPAddress = ipAddress,       // حفظ عنوان IP الذي دخل منه المستخدم
+                Token = token,               // (اختياري) حفظ رمز الـ JWT الصادر لتلك الجلسة إن وجد
+                LoginTime = DateTime.UtcNow, // تسجيل توقيت الدخول باستخدام توقيت UTC العالمي
+                IsActive = true              // تمييز أن هذه الجلسة لا تزال فعالة (نشطة)
+            };
+
+            // إضافة الجلسة الجديدة إلى قاعدة البيانات عبر DbContext
+            context.UserSessions.Add(session);
+
+            // حفظ التغييرات إلى قاعدة البيانات بشكل فعلي
+            await context.SaveChangesAsync();
+
             return Ok(new
             {
                 Message = "successfully logged in!!",
@@ -301,6 +325,31 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok("Your account has been deleted successfully.");
         }
+
+
+        [HttpGet("connected-devices")]
+        [Authorize]
+        public async Task<IActionResult> GetConnectedDevices()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            var sessions = await context.UserSessions
+                .Where(s => s.UserId == user.Id && s.IsActive)
+                .OrderByDescending(s => s.LoginTime)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.DeviceInfo,
+                    s.IPAddress,
+                    s.LoginTime
+                })
+                .ToListAsync();
+
+            return Ok(sessions);
+        }
+
 
         [HttpPost("enable-2fa")]
         [Authorize]
