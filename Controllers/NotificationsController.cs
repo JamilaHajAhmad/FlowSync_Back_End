@@ -60,6 +60,31 @@ namespace WebApplicationFlowSync.Controllers
             return Ok("Notification marked as read.");
         }
 
+        [HttpPost("mark-all-as-read")]
+        [Authorize]
+        public async Task<IActionResult> MarkAllAsRead()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            var notifications = await context.Notifications
+                .Where(n => n.UserId == user.Id && !n.IsRead)
+                .ToListAsync();
+
+            if (!notifications.Any())
+                return Ok("No unread notifications.");
+
+            foreach(var notification in notifications)
+            {
+                notification.IsRead = true;
+            }
+
+            await context.SaveChangesAsync();
+
+            return Ok("All notifications marked as read.");
+        }
+
 
     }
 
