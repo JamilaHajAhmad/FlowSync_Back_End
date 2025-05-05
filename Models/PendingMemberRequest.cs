@@ -20,7 +20,7 @@ namespace WebApplicationFlowSync.Models
         // الحقول المشتركة
         public string MemberName { get; set; }
         public string Email { get; set; }
-        public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
+        public DateTime RequestedAt { get; set; } = DateTime.Now;
         public RequestStatus RequestStatus { get; set; } = RequestStatus.Pending;
 
     }
