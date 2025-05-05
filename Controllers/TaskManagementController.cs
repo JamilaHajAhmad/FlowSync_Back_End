@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
+using WebApplicationFlowSync.services.NotificationService;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
@@ -16,11 +17,13 @@ namespace WebApplicationFlowSync.Controllers
     {
         private readonly UserManager<AppUser> userManager;
         private readonly ApplicationDbContext context;
+        private readonly INotificationService notificationService;
 
-        public TaskManagementController(UserManager<AppUser> userManager, ApplicationDbContext context)
+        public TaskManagementController(UserManager<AppUser> userManager, ApplicationDbContext context, INotificationService notificationService)
         {
             this.userManager = userManager;
             this.context = context;
+            this.notificationService = notificationService;
         }
 
         // إنشاء تاسك جديد
@@ -79,6 +82,13 @@ namespace WebApplicationFlowSync.Controllers
             {
                 context.Tasks.Add(task);
                 await context.SaveChangesAsync();
+
+
+                await notificationService.SendNotificationAsync(
+                     member.Id,
+                      $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}).",
+                      NotificationType.Info
+                );
 
                 return Ok(new
                 {
@@ -184,6 +194,12 @@ namespace WebApplicationFlowSync.Controllers
 
             task.Type = TaskStatus.Delayed;
             await context.SaveChangesAsync();
+
+            await notificationService.SendNotificationAsync(
+                task.UserID,
+                  $"You have been marked as delayed in delivering task #{task.FRNNumber}. Please follow up.",
+                  NotificationType.Warning
+            );
 
             return Ok("The task status has been changed to delayed.");
         }

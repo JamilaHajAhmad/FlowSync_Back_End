@@ -15,6 +15,7 @@ using WebApplicationFlowSync.services.CacheServices;
 using WebApplicationFlowSync.services.SettingService;
 using WebApplicationFlowSync.services.ExternalServices;
 using WebApplicationFlowSync.Classes;
+using WebApplicationFlowSync.services.NotificationService;
 
 namespace WebApplicationFlowSync
 {
@@ -99,7 +100,8 @@ namespace WebApplicationFlowSync
             //Add Auth Service (generate token)
             builder.Services.AddScoped<AuthServices>();
 
-
+            //Notification Service
+            builder.Services.AddScoped<INotificationService, NotificationService>();
             // Serilog
             builder.Host.UseSerilog((context, config) =>
             {

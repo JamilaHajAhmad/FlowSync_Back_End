@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Identity;
 using WebApplicationFlowSync.DTOs;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
+using WebApplicationFlowSync.services.NotificationService;
+using Microsoft.Graph.Models;
 
 namespace WebApplicationFlowSync.Controllers
 {
@@ -18,11 +20,13 @@ namespace WebApplicationFlowSync.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
+        private readonly INotificationService notificationService;
 
-        public FreezeTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public FreezeTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager , INotificationService notificationService)
         {
             this.context = context;
             this.userManager = userManager;
+            this.notificationService = notificationService;
         }
 
         [HttpPost("create-freeze-request")]
@@ -31,12 +35,12 @@ namespace WebApplicationFlowSync.Controllers
         {
             try
             {
-                var user = await userManager.GetUserAsync(User);
-                if (user == null || !User.IsInRole("Member"))
+                var member = await userManager.GetUserAsync(User);
+                if (member == null || !User.IsInRole("Member"))
                     return Unauthorized();
 
                 var task = await context.Tasks.FindAsync(dto.FRNNumber);
-                if (task == null || task.UserID != user.Id)
+                if (task == null || task.UserID != member.Id)
                     throw new Exception("Invalid task.");
 
 
@@ -45,17 +49,22 @@ namespace WebApplicationFlowSync.Controllers
                 {
                     FRNNumber = dto.FRNNumber,
                     Reason = dto.Reason,
-                    MemberId = user.Id,
-                    MemberName = user.FirstName + " " + user.LastName,
-                    Email = user.Email,
+                    MemberId = member.Id,
+                    MemberName = member.FirstName + " " + member.LastName,
+                    Email = member.Email,
                     RequestedAt = DateTime.UtcNow,
                     RequestStatus = RequestStatus.Pending,
                     Type = RequestType.FreezeTask,
-                    LeaderId = user.LeaderID
+                    LeaderId = member.LeaderID
                 };
 
                 context.PendingMemberRequests.Add(request);
                 await context.SaveChangesAsync();
+
+                await notificationService.SendNotificationAsync(
+                member.LeaderID,
+                    $"Member {member.FirstName} {member.LastName} has submitted a freeze request for task #{dto.FRNNumber}.",
+                   NotificationType.FreezeTaskRequest);
 
                 return Ok("Request submitted, wait for leader approval");
             }
@@ -103,6 +112,12 @@ namespace WebApplicationFlowSync.Controllers
             task.Reason = request.Reason;
             await context.SaveChangesAsync();
 
+            await notificationService.SendNotificationAsync(
+                request.MemberId,
+                $"Your freeze request for task #{request.FRNNumber} has been approved.",
+                NotificationType.Approval
+            );
+
             return Ok("Freeze request approved and task status updated to Frozen.");
         }
 
@@ -131,6 +146,12 @@ namespace WebApplicationFlowSync.Controllers
             request.LeaderId = user.Id;
 
             await context.SaveChangesAsync();
+
+            await notificationService.SendNotificationAsync(
+              request.MemberId,
+              $"Your freeze request for task #{request.FRNNumber} has been rejected.",
+              NotificationType.Rejection
+            );
 
             return Ok("Freeze request has been rejected.");
         }

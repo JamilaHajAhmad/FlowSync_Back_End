@@ -34,6 +34,13 @@ namespace WebApplicationFlowSync.Data
                 .HasForeignKey(t => t.UserID)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<AppUser>()
+                .HasMany(u => u.Notifications)
+                .WithOne(n => n.User)
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // أو أي سلوك مناسب
+
+
             //علاقة التقرير مع المهام عبر جدول الربط(بدون Cascade)
             modelBuilder.Entity<TaskReport>()
                 .HasKey(tr => new { tr.ReportID, tr.FRNNumber });
@@ -80,6 +87,7 @@ namespace WebApplicationFlowSync.Data
             modelBuilder.Entity<FreezeTaskRequest>()
            .Property(f => f.FRNNumber)
            .HasColumnName("Freeze_FRNNumber");
+
         }
 
         public DbSet<AppUser> Users { get; set; }
@@ -88,5 +96,6 @@ namespace WebApplicationFlowSync.Data
         public DbSet<TaskReport> TasksReports { get; set; }
         public DbSet<PendingMemberRequest> PendingMemberRequests { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 }

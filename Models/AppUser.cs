@@ -44,6 +44,8 @@ namespace WebApplicationFlowSync.Models
     // الطلبات التي استلمها هذا المستخدم كـ Leader
     public ICollection<PendingMemberRequest>? ReceivedJoinRequests { get; set; }
 
+     public ICollection<Notification>? Notifications { get; set; }
+
         public DateTime? DateOfBirth { get; set; } = null;
 
         public DateTime? JoinedAt { get; set; } = null;

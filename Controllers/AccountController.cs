@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Net;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
@@ -10,6 +12,7 @@ using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.Models.Requests;
 using WebApplicationFlowSync.services;
 using WebApplicationFlowSync.services.EmailService;
+using WebApplicationFlowSync.services.NotificationService;
 using Task = System.Threading.Tasks.Task;
 
 namespace WebApplicationFlowSync.Controllers
@@ -23,14 +26,16 @@ namespace WebApplicationFlowSync.Controllers
         private readonly IEmailService emailService;
         private readonly ApplicationDbContext context;
         private readonly AuthServices authServices;
+        private readonly INotificationService notificationService;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService, ApplicationDbContext context, AuthServices authServices)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService, ApplicationDbContext context, AuthServices authServices , INotificationService notificationService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.emailService = emailService;
             this.context = context;
             this.authServices = authServices;
+            this.notificationService = notificationService;
         }
 
 
@@ -101,14 +106,14 @@ namespace WebApplicationFlowSync.Controllers
                         MemberName = user.FirstName + " " + user.LastName,
                         Email = user.Email
                     };
-                    //var pendingRequest = new PendingMemberRequest()
-                    //{
-                    //    MemberId = user.Id,
-                    //    LeaderId = leader.Id,
-                    //};
-
                     await context.PendingMemberRequests.AddAsync(pendingRequest);
                     await context.SaveChangesAsync();
+
+                    await notificationService.SendNotificationAsync(
+                        leader.Id,
+                        $"Member {user.FirstName} {user.LastName} has submitted a SignUp request",
+                        NotificationType.SignUpRequest
+                    );
                 }
 
                 return Ok(new { message = "success" });
@@ -275,5 +280,26 @@ namespace WebApplicationFlowSync.Controllers
         //    };
         //    await emailService.sendEmailAsync(emailDto);
         //}
+
+        [HttpPost("delete-account")]
+        [Authorize]
+        public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountDto dto)
+        {
+            var user = await userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            var passwordValid = await userManager.CheckPasswordAsync(user, dto.Password);
+            if(!passwordValid)
+                return BadRequest("Incorrect password.");
+
+            var result = await userManager.DeleteAsync(user);
+
+            if (!result.Succeeded)
+                throw new Exception($"Failed to delete account: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+
+            return Ok("Your account has been deleted successfully.");
+        }
     }
 }

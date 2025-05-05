@@ -9,6 +9,7 @@ using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Identity;
 using WebApplicationFlowSync.DTOs;
+using WebApplicationFlowSync.services.NotificationService;
 
 namespace WebApplicationFlowSync.Controllers
 {
@@ -18,11 +19,13 @@ namespace WebApplicationFlowSync.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
+        private readonly INotificationService notificationService;
 
-        public CompleteTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public CompleteTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager , INotificationService notificationService)
         {
             this.context = context;
             this.userManager = userManager;
+            this.notificationService = notificationService;
         }
 
 
@@ -58,6 +61,12 @@ namespace WebApplicationFlowSync.Controllers
 
             context.PendingMemberRequests.Add(request);
             await context.SaveChangesAsync();
+
+            await notificationService.SendNotificationAsync(
+                member.LeaderID,
+                $"Member {member.FirstName} {member.LastName} has submitted a request to complete task #{dto.FRNNumber}.",
+                NotificationType.CompleteTaskRequest
+            );
 
             return Ok("The task completion request has been sent successfully.");
         }
@@ -108,6 +117,12 @@ namespace WebApplicationFlowSync.Controllers
             task.Notes = request.Notes;
 
             await context.SaveChangesAsync();
+
+            await notificationService.SendNotificationAsync(
+                request.MemberId,
+                $"Your complete request for task #{request.FRNNumber} has been approved.",
+                NotificationType.Approval
+            );
 
             return Ok("Complete task request approved and task status updated to Completed.");
 

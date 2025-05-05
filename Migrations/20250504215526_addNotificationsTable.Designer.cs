@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplicationFlowSync.Data;
 
@@ -11,9 +12,11 @@ using WebApplicationFlowSync.Data;
 namespace WebApplicationFlowSync.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250504215526_addNotificationsTable")]
+    partial class addNotificationsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -283,9 +286,6 @@ namespace WebApplicationFlowSync.Migrations
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -566,7 +566,7 @@ namespace WebApplicationFlowSync.Migrations
             modelBuilder.Entity("WebApplicationFlowSync.Models.Notification", b =>
                 {
                     b.HasOne("WebApplicationFlowSync.Models.AppUser", "User")
-                        .WithMany("Notifications")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -634,8 +634,6 @@ namespace WebApplicationFlowSync.Migrations
 
             modelBuilder.Entity("WebApplicationFlowSync.Models.AppUser", b =>
                 {
-                    b.Navigation("Notifications");
-
                     b.Navigation("ReceivedJoinRequests");
 
                     b.Navigation("Reports");
