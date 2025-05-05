@@ -28,7 +28,7 @@ namespace WebApplicationFlowSync.Controllers
         private readonly AuthServices authServices;
         private readonly INotificationService notificationService;
 
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService, ApplicationDbContext context, AuthServices authServices , INotificationService notificationService)
+        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IEmailService emailService, ApplicationDbContext context, AuthServices authServices, INotificationService notificationService)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
@@ -242,7 +242,7 @@ namespace WebApplicationFlowSync.Controllers
         }
 
 
-    
+
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
@@ -291,7 +291,7 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized("User not found.");
 
             var passwordValid = await userManager.CheckPasswordAsync(user, dto.Password);
-            if(!passwordValid)
+            if (!passwordValid)
                 return BadRequest("Incorrect password.");
 
             var result = await userManager.DeleteAsync(user);
@@ -301,5 +301,80 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok("Your account has been deleted successfully.");
         }
+
+        [HttpPost("enable-2fa")]
+        [Authorize]
+        public async Task<IActionResult> EnableTwoFactorAuthentication()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            if (await userManager.GetTwoFactorEnabledAsync(user))
+                return BadRequest("Two-factor authentication is already enabled.");
+
+            var token = await userManager.GenerateTwoFactorTokenAsync(user, "Email");
+
+            if (string.IsNullOrEmpty(token))
+                throw new Exception("Failed to generate token for 2FA.");
+
+            if (string.IsNullOrWhiteSpace(user.Email))
+                return BadRequest("User email address is missing.");
+
+            var emailDto = new EmailDto()
+            {
+                To = user.Email,
+                Subject = $"Two-Factor Authentication Code",
+                Body = $"Your 2FA code is: {token}"
+            };
+
+            if (string.IsNullOrEmpty(emailDto.To) || string.IsNullOrEmpty(emailDto.Subject) || string.IsNullOrEmpty(emailDto.Body))
+            {
+                return StatusCode(500, "Email content is invalid.");
+            }
+            await emailService.sendEmailAsync(emailDto);
+
+            return Ok("Two-factor authentication is enabled. Please check your email for the verification code.");
+        }
+
+        [HttpPost("disable-2fa")]
+        [Authorize]
+        public async Task<IActionResult> DisableTwoFactorAuthentication()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            var result = await userManager.SetTwoFactorEnabledAsync(user, false);
+            if (!result.Succeeded)
+                throw new Exception("Failed to disable two-factor authentication.");
+
+            return Ok("Two-factor authentication has been disabled.");
+        }
+
+        //2FAالتحقق من رمز ال 
+        [HttpPost("verfiy-2fa")]
+        [Authorize]
+        public async Task<IActionResult> VerifyTwoFactorAuthentication(VerifyTwoFactorDto model)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            //verify code
+            var result = await userManager.VerifyTwoFactorTokenAsync(user, "Email", model.Code);
+
+            if (!result)
+                return BadRequest("Invalid verification code.");
+
+            //Enable 2FA
+            var enableResult = await userManager.SetTwoFactorEnabledAsync(user, true);
+            if (!enableResult.Succeeded)
+                throw new Exception("Failed to enable two-factor authentication.");
+
+            return Ok("Two-factor authentication has been enabled successfully.");
+
+        }
+
     }
 }

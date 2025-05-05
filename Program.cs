@@ -51,6 +51,10 @@ namespace WebApplicationFlowSync
             }).AddEntityFrameworkStores<ApplicationDbContext>()
               .AddDefaultTokenProviders();
 
+            //2FA service 
+            builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+               options.TokenLifespan = TimeSpan.FromHours(3)); // مدة صلاحية رمز 2FA
+
 
 
 
