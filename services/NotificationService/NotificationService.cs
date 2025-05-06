@@ -27,7 +27,7 @@ namespace WebApplicationFlowSync.services.NotificationService
                 Message = message,
                 Type = type,
                 IsRead = false,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Now,
             };
             context.Notifications.Add(notification);
             await context.SaveChangesAsync();
