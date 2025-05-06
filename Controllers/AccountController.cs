@@ -361,6 +361,22 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(sessions);
         }
 
+        [HttpPost("api/account/sessions/{sessionId}/logout")]
+        [Authorize]
+        public async Task<IActionResult> LogoutSession(int sessionId)
+        {
+            var user = await userManager.GetUserAsync(User);
+
+            var session = await context.UserSessions
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
+
+            if (session == null) return NotFound();
+            session.IsActive = false;
+            await context.SaveChangesAsync();
+
+            return Ok();
+        }
+
 
         [HttpPost("enable-2fa")]
         [Authorize]
@@ -434,23 +450,6 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok("Two-factor authentication has been enabled successfully.");
 
-        }
-
-        [HttpPost("api/account/sessions/{sessionId}/logout")]
-        [Authorize]
-        public async Task<IActionResult> LogoutSession(int sessionId)
-        {
-            var user = await userManager.GetUserAsync(User);
-
-            var session = await context.UserSessions
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
-
-            if (session == null) return NotFound();
-
-            session.IsActive = false;
-            await context.SaveChangesAsync();
-
-            return Ok();
         }
 
     }

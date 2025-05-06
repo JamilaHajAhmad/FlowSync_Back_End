@@ -87,7 +87,8 @@ namespace WebApplicationFlowSync.Controllers
                 await notificationService.SendNotificationAsync(
                      member.Id,
                       $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}).",
-                      NotificationType.Info
+                      NotificationType.Info,
+                      member.Email
                 );
 
                 return Ok(new

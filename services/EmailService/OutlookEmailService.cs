@@ -53,7 +53,10 @@ namespace WebApplicationFlowSync.services.EmailService
             message.From.Add(new MailboxAddress("", emailSettings.EmailUserName));
             message.To.Add(new MailboxAddress("", request.To));
             message.Subject = request.Subject;
-            message.Body = new TextPart("plain") { Text = request.Body };
+            //message.Body = new TextPart("plain") { Text = request.Body };
+            //تحويل Body الى Html
+            message.Body = new TextPart("html") { Text = request.Body };
+
 
             //get access token using offline access or Interactive (browser login needed)
             string accessToken = await GetAccessTokenWithRefreshTokenAsync(); // await GetAccessTokenInteractiveAsync(); ;
@@ -190,13 +193,20 @@ namespace WebApplicationFlowSync.services.EmailService
         // ✅ الدالة الجديدة
         public async Task SendConfirmationEmail(string to, string subject, string link)
         {
+            string htmlBody = EmailTemplateBuilder.BuildTemplate(
+                 "Email Confirmation",
+                 "Please confirm your email by clicking the button below:",
+                 "Confirm Email",
+                  link
+                  );
+
             var emailDto = new EmailDto
             {
                 To = to,
                 Subject = subject,
                 //Body = $"يرجى تأكيد بريدك عبر الرابط التالي: <a href=\"{link}\">{link}</a>"
-                Body = $"يرجى تأكيد بريدك عبر الرابط التالي: <a href=\"{link}\">اضغط هنا لتأكيد بريدك الإلكتروني</a>"
-
+                //Body = $"يرجى تأكيد بريدك عبر الرابط التالي: <a href=\"{link}\">اضغط هنا لتأكيد بريدك الإلكتروني</a>"
+                Body = htmlBody
             };
             await sendEmailAsync(emailDto);
         }
