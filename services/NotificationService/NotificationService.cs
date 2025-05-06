@@ -19,7 +19,7 @@ namespace WebApplicationFlowSync.services.NotificationService
             this.emailService = emailService;
         }
 
-        public async Task SendNotificationAsync(string userId, string message , NotificationType type , string email = null)
+        public async Task SendNotificationAsync(string userId, string message , NotificationType type , string email = null , string? linkText = null, string? linkUrl = null)
         {
             var notification = new Notification
             {
@@ -37,7 +37,9 @@ namespace WebApplicationFlowSync.services.NotificationService
             {
                 var htmlBody = EmailTemplateBuilder.BuildTemplate(
                     "New Notification",
-                    message
+                    message,
+                    linkText,
+                    linkUrl
                 );
                 var emailDto = new EmailDto()
                 {

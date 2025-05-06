@@ -88,7 +88,9 @@ namespace WebApplicationFlowSync.Controllers
                      member.Id,
                       $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}).",
                       NotificationType.Info,
-                      member.Email
+                      member.Email,
+                      "View Task",
+                      "http://localhost:3002/member-tasks"
                 );
 
                 return Ok(new

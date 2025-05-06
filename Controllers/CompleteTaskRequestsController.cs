@@ -41,11 +41,15 @@ namespace WebApplicationFlowSync.Controllers
             if (task == null)
                 return NotFound("Task not found.");
 
-            
+            bool hasExistingCompleteRequest = await context.PendingMemberRequests.OfType<CompleteTaskRequest>()
+              .AnyAsync(r =>
+               r.FRNNumber == dto.FRNNumber &&
+               r.MemberId == member.Id &&
+               r.RequestStatus == RequestStatus.Pending);
 
-            //var leader = await context.Users.FindAsync(member.LeaderID);
-            //if (leader == null)
-            //    return BadRequest("The leader cannot be found.");
+            if (hasExistingCompleteRequest)
+                return BadRequest("You already have a pending completion request for this task.");
+
 
             var request = new CompleteTaskRequest
             {

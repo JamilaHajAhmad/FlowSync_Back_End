@@ -35,6 +35,7 @@ namespace WebApplicationFlowSync.Controllers
         {
             try
             {
+
                 var member = await userManager.GetUserAsync(User);
                 if (member == null || !User.IsInRole("Member"))
                     return Unauthorized();
@@ -43,6 +44,15 @@ namespace WebApplicationFlowSync.Controllers
                 if (task == null || task.UserID != member.Id)
                     throw new Exception("Invalid task.");
 
+
+                bool hasExistingCompleteRequest = await context.PendingMemberRequests.OfType<FreezeTaskRequest>()
+                 .AnyAsync(r =>
+                  r.FRNNumber == dto.FRNNumber &&
+                  r.MemberId == member.Id &&
+                  r.RequestStatus == RequestStatus.Pending);
+
+                if (hasExistingCompleteRequest)
+                    return BadRequest("You already have a pending freeze request for this task.");
 
 
                 var request = new FreezeTaskRequest
@@ -57,6 +67,7 @@ namespace WebApplicationFlowSync.Controllers
                     Type = RequestType.FreezeTask,
                     LeaderId = member.LeaderID
                 };
+
 
                 context.PendingMemberRequests.Add(request);
                 await context.SaveChangesAsync();

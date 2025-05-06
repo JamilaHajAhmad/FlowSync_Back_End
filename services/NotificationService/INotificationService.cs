@@ -5,6 +5,6 @@ namespace WebApplicationFlowSync.services.NotificationService
 {
     public interface INotificationService
     {
-        Task SendNotificationAsync(string userId, string message , NotificationType type ,string email = null);
+        Task SendNotificationAsync(string userId, string message , NotificationType type ,string email = null, string? linkText = null, string? linkUrl = null);
     }
 }
