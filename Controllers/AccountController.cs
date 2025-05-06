@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Graph.Models;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Net;
+using System.Security.Claims;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.DTOs.Auth;
@@ -149,6 +150,7 @@ namespace WebApplicationFlowSync.Controllers
             }
             var token = await authServices.CreateTokenAsync(user, userManager);
 
+
             // الحصول على عنوان الـ IP الخاص بالمستخدم الذي أرسل الطلب الحالي
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
 
@@ -171,6 +173,15 @@ namespace WebApplicationFlowSync.Controllers
 
             // حفظ التغييرات إلى قاعدة البيانات بشكل فعلي
             await context.SaveChangesAsync();
+
+
+            // إرسال إشعار بتسجيل الدخول
+            await notificationService.SendNotificationAsync(
+                user.Id,
+                $"Login detected from device: {userAgent} with IP: {ipAddress}",
+                NotificationType.Security
+            );
+
 
             return Ok(new
             {
@@ -423,6 +434,23 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok("Two-factor authentication has been enabled successfully.");
 
+        }
+
+        [HttpPost("api/account/sessions/{sessionId}/logout")]
+        [Authorize]
+        public async Task<IActionResult> LogoutSession(int sessionId)
+        {
+            var user = await userManager.GetUserAsync(User);
+
+            var session = await context.UserSessions
+                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == user.Id);
+
+            if (session == null) return NotFound();
+
+            session.IsActive = false;
+            await context.SaveChangesAsync();
+
+            return Ok();
         }
 
     }

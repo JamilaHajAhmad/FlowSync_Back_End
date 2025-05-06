@@ -33,6 +33,7 @@ namespace WebApplicationFlowSync.Models
         FreezeTaskRequest,
         Info,
         Warning,
-        Error
+        Error,
+        Security
     }
 }
