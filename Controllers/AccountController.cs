@@ -164,7 +164,7 @@ namespace WebApplicationFlowSync.Controllers
                 DeviceInfo = userAgent,      // تخزين معلومات الجهاز أو المتصفح المستخدم للدخول
                 IPAddress = ipAddress,       // حفظ عنوان IP الذي دخل منه المستخدم
                 Token = token,               // (اختياري) حفظ رمز الـ JWT الصادر لتلك الجلسة إن وجد
-                LoginTime = DateTime.UtcNow, // تسجيل توقيت الدخول باستخدام توقيت UTC العالمي
+                LoginTime = DateTime.Now, // تسجيل توقيت الدخول باستخدام توقيت UTC العالمي
                 IsActive = true              // تمييز أن هذه الجلسة لا تزال فعالة (نشطة)
             };
 
