@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Data;
+using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
@@ -53,25 +54,28 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(members);
         }
 
-        //[HttpDelete("delete-member/{memberId}")]
-        //public async Task<IActionResult> DeleteMember(string memberId)
-        //{
-        //    var member = await userManager.FindByIdAsync(memberId);
+        [HttpDelete("delete-member/{memberId}")]
+        [Authorize(Roles = "Leader")]
+        public async Task<IActionResult> DeleteMember(string memberId)
+        {
+            var member = await userManager.Users
+                .Include(u => u.Tasks)
+                .FirstOrDefaultAsync(u => u.Id == memberId &&  u.Role == Role.Member);
 
-        //    if (member == null)
-        //        return NotFound("User not found.");
+                if (member == null)
+                return NotFound("User not found.");
 
-        //    if (member.Role != Role.Member)
-        //        throw new Exception("A user who is not a member cannot be deleted.");
+            var leader = await userManager.GetUserAsync(User);
 
-        //    // حذف العضو
-        //    var result = await userManager.DeleteAsync(member);
-        //    context.SaveChanges();
-        //    if (!result.Succeeded)
-        //        throw new Exception("An error occurred while trying to delete member.");
+            if (leader == null || leader.Id != member.LeaderID)
+                return Forbid("You are not authorized to remove this member");
 
-        //    return Ok("Member has been successfully deleted.");
-        //}
+            member.IsRemoved = true;
+            await context.SaveChangesAsync();
+
+            return Ok("Member has been removed successfully.Please reassign his tasks");
+
+        }
 
         [HttpGet("members-with-ongoing-tasks")]
         public async Task<IActionResult> GetMembersWithOngoingTasks()

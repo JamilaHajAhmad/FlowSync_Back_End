@@ -230,5 +230,63 @@ namespace WebApplicationFlowSync.Controllers
             return Ok("The task status has been changed to delayed.");
         }
 
+
+        [HttpGet("get-member-tasks-to-reassign/{memberId}")]
+        [Authorize(Roles ="Leader")]
+        public async Task<IActionResult> GetTasksToReassign(string memberId)
+        {
+            var leader = await userManager.GetUserAsync(User);
+            var member = await userManager.Users
+                .Include(u => u.Tasks)
+                .FirstOrDefaultAsync(u => u.Id == memberId && u.Role == Role.Member && u.IsRemoved);
+
+            if (member == null || leader == null || member.LeaderID != leader.Id)
+                return NotFound("Member not found or you are not authorized.");
+
+            var tasksToReassign = member.Tasks?
+                .Where(t => t.Type == TaskStatus.Opened || t.Type == TaskStatus.Frozen)
+                .Select(t => new
+                {
+                    t.FRNNumber,
+                    t.Title,
+                    t.Type,
+                    t.Priority,
+                    t.CreatedAt,
+                    t.Deadline
+                })
+                .ToList();
+
+            return Ok(tasksToReassign);
+        }
+
+        [HttpPost("reassign-task")]
+        [Authorize (Roles = "Leader")]
+        public async Task<IActionResult> ReassignTask([FromBody] ReassignTaskDto dto)
+        {
+            var leader = await userManager.GetUserAsync(User);
+
+            var task = await context.Tasks.FindAsync(dto.FRNNumber);
+            if (task == null) return NotFound("Task not found.");
+
+            var fromUser = await userManager.FindByIdAsync(task.UserID);
+            if (fromUser == null || fromUser.LeaderID != leader.Id)
+                return Forbid("You are not authorized to reassign this task.");
+
+            var toUser = await userManager.Users
+                .FirstOrDefaultAsync(u => u.Id == dto.NewMemberId
+                    && u.Role == Role.Member
+                    && u.LeaderID == leader.Id
+                    && !u.IsRemoved);
+
+            if (toUser == null) return BadRequest("Invalid member selected.");
+
+            task.UserID = toUser.Id;
+            await context.SaveChangesAsync();
+
+            return Ok("Task reassigned successfully.");
+        }
+
+   
+
     }
 }
