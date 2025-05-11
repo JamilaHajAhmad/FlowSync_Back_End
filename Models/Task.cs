@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace WebApplicationFlowSync.Models
 {
@@ -23,12 +24,13 @@ namespace WebApplicationFlowSync.Models
         public TaskStatus Type { get; set; } = TaskStatus.Opened;
         public TaskPriority Priority { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime Deadline { get; set; }
         public DateTime? CompletedAt { get; set; } = null;
         public DateTime? FrozenAt { get; set; } = null;
 
-        public string? Reason { get; set; } 
+        public string? Reason { get; set; }
 
-        public string? Notes { get; set; } 
+        public string? Notes { get; set; }
 
         public string UserID { get; set; }
         [ForeignKey("UserID")]
@@ -37,6 +39,56 @@ namespace WebApplicationFlowSync.Models
 
         // العلاقة مع التقارير
         public ICollection<TaskReport>? TasksReports { get; set; }
+
+
+        public void SetDeadline()
+        {
+            int allowedWorkingDays = Priority switch
+            {
+                TaskPriority.Urgent => 2,
+                TaskPriority.Regular => 10,
+                TaskPriority.Important => 10,
+                _ => 0
+            };
+
+            Deadline = AddWorkingDays(CreatedAt, allowedWorkingDays);
+        }
+
+        [NotMapped]
+        public TimeSpan Counter
+        {
+            get
+            {
+                int allowedWorkingDays = Priority switch
+                {
+                    TaskPriority.Urgent => 2,
+                    TaskPriority.Regular => 10,
+                    TaskPriority.Important => 10,
+                    _ => 0
+                };
+
+                // نحسب التاريخ النهائي حسب أيام العمل فقط
+                DateTime deadline = AddWorkingDays(CreatedAt, allowedWorkingDays);
+
+                // الفارق بين الآن والموعد النهائي
+                return deadline - DateTime.Now;
+            }
+        }
+
+        private DateTime AddWorkingDays(DateTime startDate, int workingDays)
+        {
+            var current = startDate;
+            while (workingDays > 0)
+            {
+                current = current.AddDays(1);
+                if (current.DayOfWeek != DayOfWeek.Saturday && current.DayOfWeek != DayOfWeek.Sunday)
+                {
+                    workingDays--;
+                }
+            }
+            return current;
+        }
+
     }
 
     public enum TaskPriority
@@ -54,7 +106,7 @@ namespace WebApplicationFlowSync.Models
         Frozen     // 3
     }
 
-       public enum CaseSource
+    public enum CaseSource
     {
         JebelAli,             // جبل علي
         AlRaffa,              // الرفاعة
@@ -82,4 +134,5 @@ namespace WebApplicationFlowSync.Models
         Forensics,            // الطب الشرعي
         MinistryOfDefense     // وزارة الدفاع
     }
+
 }

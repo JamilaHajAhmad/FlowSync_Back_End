@@ -80,6 +80,7 @@ namespace WebApplicationFlowSync.Controllers
             // إضافة التاسك إلى قاعدة البيانات
             try
             {
+                task.SetDeadline();
                 context.Tasks.Add(task);
                 await context.SaveChangesAsync();
 
@@ -118,7 +119,10 @@ namespace WebApplicationFlowSync.Controllers
                 query = query.Where(t => t.Type == type.Value);
             }
 
-            var tasks = await query
+            //LINQ to Entities لا يفهم كيف يترجم Counter إلى SQL
+            var taskList = await query.ToListAsync(); // تم تحويلها الى list حتى نستطيع عرض ال Counter لانها NotMapped
+
+            var tasks = taskList
                 .Select(t => new
                 {
                     TaskTitle = t.Title,
@@ -129,17 +133,19 @@ namespace WebApplicationFlowSync.Controllers
                     Priority = t.Priority,
                     Status = t.Type,
                     OpenDate = t.CreatedAt,
+                    Deadline = t.Deadline,
                     CompletedAt = t.CompletedAt,
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
                     Notes = t.Notes,
+                    Counter = t.Counter,
                     AssignedMember = new
                     {
                         Id = t.User.Id,
                         FullName = t.User.FirstName + " " + t.User.LastName
                     }
                 })
-                .ToListAsync();
+                .ToList();
 
             return Ok(tasks);
         }
@@ -166,7 +172,9 @@ namespace WebApplicationFlowSync.Controllers
                 query = query.Where(t => t.Type == type.Value);
             }
 
-            var tasks = await query
+            var taskList =await query.ToListAsync();
+
+            var tasks = taskList
                 .Select(t => new
                 {
                     TaskTitle = t.Title,
@@ -177,12 +185,14 @@ namespace WebApplicationFlowSync.Controllers
                     Priority = t.Priority,
                     Type = t.Type,
                     CreatedAt = t.CreatedAt,
+                    Deadline = t.Deadline,
                     CompletedAt = t.CompletedAt,
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
-                    Notes = t.Notes
+                    Notes = t.Notes,
+                    Counter = t.Counter
                 })
-                .ToListAsync();
+                .ToList();
 
             return Ok(tasks);
         }
