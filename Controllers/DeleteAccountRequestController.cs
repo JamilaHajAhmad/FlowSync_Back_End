@@ -39,6 +39,7 @@ namespace WebApplicationFlowSync.Controllers
                 .Select(r => new
                 {
                     r.RequestId,
+                    r.MemberId,
                     r.MemberName,
                     r.Email,
                     r.RequestedAt,

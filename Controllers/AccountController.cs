@@ -59,7 +59,7 @@ namespace WebApplicationFlowSync.Controllers
 
             if (model.Role == Role.Leader)
             {
-                var existingLeader = await userManager.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader);
+                var existingLeader = await userManager.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsRemoved);
                 if (existingLeader != null)
                     throw new Exception("There is really only one team leader.");
             }
