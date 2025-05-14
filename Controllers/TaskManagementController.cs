@@ -238,7 +238,7 @@ namespace WebApplicationFlowSync.Controllers
             var leader = await userManager.GetUserAsync(User);
             var member = await userManager.Users
                 .Include(u => u.Tasks)
-                .FirstOrDefaultAsync(u => u.Id == memberId && u.Role == Role.Member && u.IsRemoved);
+                .FirstOrDefaultAsync(u => u.Id == memberId && u.Role == Role.Member);
 
             if (member == null || leader == null || member.LeaderID != leader.Id)
                 return NotFound("Member not found or you are not authorized.");
