@@ -9,6 +9,7 @@ using WebApplicationFlowSync.services.EmailService;
 using WebApplicationFlowSync.services.NotificationService;
 using WebApplicationFlowSync.Data;
 using Microsoft.EntityFrameworkCore;
+using WebApplicationFlowSync.Models.Requests;
 
 namespace WebApplicationFlowSync.Controllers
 {
@@ -29,6 +30,25 @@ namespace WebApplicationFlowSync.Controllers
             this.emailService = emailService;
         }
 
+        [HttpGet("all-delete-account-requests")]
+        [Authorize(Roles = "Leader")]
+        public async Task<IActionResult> GetAllDeleteAccountRequests()
+        {
+            var requests = await context.PendingMemberRequests
+                .OfType<DeleteAccountRequest>()
+                .Select(r => new
+                {
+                    r.RequestId,
+                    r.MemberName,
+                    r.Email,
+                    r.RequestedAt,
+                    r.RequestStatus,
+                    r.Reason
+                })
+                .ToListAsync();
+
+            return Ok(requests);
+        }
 
         [HttpPost("approve-delete-member-request/{requestId}")]
         [Authorize(Roles = "Leader")]
