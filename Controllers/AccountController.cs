@@ -7,6 +7,7 @@ using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Net;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using System.Web;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.DTOs.Auth;
@@ -53,7 +54,7 @@ namespace WebApplicationFlowSync.Controllers
             if (existingUserByUsername != null)
                 throw new Exception("Username is already taken.");
 
-            if (model.Role == Role.Member && !userManager.Users.Any(u => u.Role == Role.Leader))
+            if (model.Role == Role.Member && !userManager.Users.Any(u => u.Role == Role.Leader && !u.IsRemoved))
                 throw new Exception("A member cannot register without a leader.");
 
             if (model.Role == Role.Leader)
@@ -81,21 +82,20 @@ namespace WebApplicationFlowSync.Controllers
                     throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
                 await userManager.AddToRoleAsync(user, model.Role.ToString());
-
-                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
-                //var encodedToken = WebUtility.UrlEncode(token);
-                var confirmationLink = Url.Action("ConfirmEmail", "Account", new
-                {
-                    userId = user.Id,
-                    token = token,
-                }, Request.Scheme); // بدلاً من استخدام Request.Scheme
-                Console.WriteLine("Hello");
-                Console.WriteLine(confirmationLink);
                 if (model.Role == Role.Leader)
                 {
+                    var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var encodedToken = HttpUtility.UrlEncode(token);
+                    var confirmationLink = Url.Action("ConfirmEmail", "Account", new
+                    {
+                        userId = user.Id,
+                        token = encodedToken
+                    }, Request.Scheme);
                     await emailService.SendConfirmationEmail(user.Email, "تأكيد حسابك كـ Leader", confirmationLink);
+
+                    return Ok(new { message = "success" });
                 }
-                else if (model.Role == Role.Member)
+                else //if (model.Role == Role.Member)
                 {
                     var leader = await userManager.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader);
                     if (leader is null)
@@ -117,16 +117,19 @@ namespace WebApplicationFlowSync.Controllers
                         $"Member {user.FirstName} {user.LastName} has submitted a SignUp request",
                         NotificationType.SignUpRequest
                     );
+                    return Ok(new { message = "Success. Your signup request has been sent to the leader. Please wait for their approval." });
                 }
-
-                return Ok(new { message = "success" });
             }
             catch (Exception ex)
             {
                 // حذف المستخدم في حال حصول أي خطأ
-                await userManager.DeleteAsync(user);
-                context.SaveChangesAsync();
-                return StatusCode(500, $"حدث خطأ أثناء إنشاء الحساب: {ex.InnerException?.Message ?? ex.Message}");
+                var existingUser = await userManager.FindByIdAsync(user.Id);
+                if (existingUser != null)
+                {
+                    await userManager.DeleteAsync(existingUser);
+                    await context.SaveChangesAsync();
+                }
+                return StatusCode(500, $"An error occurred while creating the account: {ex.InnerException?.Message ?? ex.Message}");
             }
         }
 
@@ -287,7 +290,7 @@ namespace WebApplicationFlowSync.Controllers
         {
             if (userId == null || token == null)
             {
-                return BadRequest("معرف المستخدم أو الرمز غير صالح.");
+                return BadRequest("Invalid user ID or token.");
             }
             //يجب فك تشفير التوكين
             token = WebUtility.UrlDecode(token);
@@ -295,17 +298,41 @@ namespace WebApplicationFlowSync.Controllers
             var user = await userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound("المستخدم غير موجود.");
+                return NotFound("User does not exist.");
             }
 
             var result = await userManager.ConfirmEmailAsync(user, token);
             if (!result.Succeeded)
             {
                 var errors = string.Join("; ", result.Errors.Select(e => e.Description));
-                return BadRequest($"فشل تأكيد البريد الإلكتروني: {errors}");
+                return BadRequest($"Email confirmation failed: {errors}");
             }
 
-            return Ok("تم تأكيد البريد الإلكتروني بنجاح.");
+            if (user.Role == Role.Leader)
+            {
+                // تعيين القائد للأعضاء الذين ليس لديهم قائد
+                var membersWithoutLeader = await userManager.Users
+                    .Where(u => u.Role == Role.Member && u.LeaderID == null && !u.IsRemoved && u.EmailConfirmed)
+                    .ToListAsync();
+
+                foreach (var m in membersWithoutLeader)
+                {
+                    m.LeaderID = user.Id;
+                }
+
+                await context.SaveChangesAsync();
+
+                foreach (var m in membersWithoutLeader)
+                {
+                    await notificationService.SendNotificationAsync(
+                        m.Id,
+                        $"A new leader ({user.FirstName} {user.LastName}) has confirmed their account and will now be your team leader.",
+                        NotificationType.Info,
+                        m.Email);
+                }
+            }
+
+            return Ok("Email confirmed successfully.");
         }
 
 
@@ -365,11 +392,31 @@ namespace WebApplicationFlowSync.Controllers
                     NotificationType.DeleteAccountRequest);
                 return Ok("Your deletion request has been sent to the leader for approval.");
             }
-            else
+            else // Leader
             {
                 user.IsRemoved = true;
-
                 await userManager.UpdateAsync(user);
+
+                var membersUnderLeader = await userManager.Users
+                    .Where(u => u.LeaderID == user.Id && u.Role == Role.Member && !u.IsRemoved)
+                    .ToListAsync();
+
+                foreach (var m in membersUnderLeader)
+                {
+                    m.LeaderID = null;
+                }
+
+                await context.SaveChangesAsync();
+
+                foreach (var m in membersUnderLeader)
+                {
+                    await notificationService.SendNotificationAsync(
+                        m.Id,
+                        "Your team leader has left the system. You will be reassigned to a new leader soon.",
+                        NotificationType.Info,
+                        m.Email);
+                }
+
                 return Ok("Your account has been deactivated (marked as removed).");
             }
         }
