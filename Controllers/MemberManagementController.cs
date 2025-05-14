@@ -35,7 +35,7 @@ namespace WebApplicationFlowSync.Controllers
                       .Include(u => u.Tasks) // ضروري تضمين المهام
                       .ToListAsync();
 
-            var members = new List<object>();
+            var members = new List<MemberDto>(); // بدلا من النوع  object حتى يتعرف على خصائص الميمبر عندما قمنا بالفحص في OrderBy
 
             foreach (var user in users)
             {
@@ -44,20 +44,27 @@ namespace WebApplicationFlowSync.Controllers
                 int activeTasksCount = user.Tasks?
                     .Count(t => t.Type == TaskStatus.Opened) ?? 0;
 
-                members.Add(new
+                members.Add(new MemberDto
                 {
-                    user.Id,
+                    Id = user.Id,
                     FullName = user.FirstName + " " + user.LastName,
-                    user.Status,
-                    user.Email,
+                    Status = user.Status,
+                    Email = user.Email,
                     OngoingTasks = activeTasksCount,
-                    user.PictureURL
+                    IsRemoved = user.IsRemoved,
+                    PictureURL = user.PictureURL
                     //DeleteEndpoint = $"apiMember/MemberManagementController/delete-member/{user.Id}"
                 });
-            }
 
-            return Ok(members);
+            }
+                // ترتيب: غير المحذوفين أولاً، ثم المحذوفين
+                var orderedMembers = members
+                    .OrderBy( m => m.IsRemoved)
+                    .ToList();
+
+                return Ok(orderedMembers);
         }
+
 
         [HttpDelete("delete-member/{memberId}")]
         [Authorize(Roles = "Leader")]

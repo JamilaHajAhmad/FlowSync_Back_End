@@ -232,7 +232,7 @@ namespace WebApplicationFlowSync.Controllers
 
 
         [HttpGet("get-member-tasks-to-reassign/{memberId}")]
-        [Authorize(Roles ="Leader")]
+        [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetTasksToReassign(string memberId)
         {
             var leader = await userManager.GetUserAsync(User);
@@ -243,20 +243,27 @@ namespace WebApplicationFlowSync.Controllers
             if (member == null || leader == null || member.LeaderID != leader.Id)
                 return NotFound("Member not found or you are not authorized.");
 
-            var tasksToReassign = member.Tasks?
-                .Where(t => t.Type == TaskStatus.Opened || t.Type == TaskStatus.Frozen)
-                .Select(t => new
-                {
-                    t.FRNNumber,
-                    t.Title,
-                    t.Type,
-                    t.Priority,
-                    t.CreatedAt,
-                    t.Deadline
-                })
+            var filteredTasks = member.Tasks?
+                .Where(t => t.Type != TaskStatus.Completed)
                 .ToList();
 
-            return Ok(tasksToReassign);
+            var groupedTasks = filteredTasks
+                .GroupBy(t => t.Type.ToString()) // اسم النوع كمفتاح (مثلاً: "Opened")
+                .ToDictionary(
+                      g => g.Key,    // تحديد key لكل عنصر
+                      g => g.Select(t => new    // تحديد القيمة لكل key
+                      {
+                          t.FRNNumber,
+                          t.OSSNumber,
+                          t.Title,
+                          t.Type,
+                          t.Priority,
+                          t.CreatedAt,
+                          t.Deadline
+                      }).ToList()
+                );
+
+             return Ok(groupedTasks);
         }
 
         [HttpPost("reassign-task")]
