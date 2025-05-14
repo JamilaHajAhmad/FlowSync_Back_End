@@ -19,19 +19,22 @@ namespace WebApplicationFlowSync.services.NotificationService
             this.emailService = emailService;
         }
 
-        public async Task SendNotificationAsync(string userId, string message , NotificationType type , string email = null , string? linkText = null, string? linkUrl = null)
+        public async Task SendNotificationAsync(string userId, string message , NotificationType type , string email = null , string? linkText = null, string? linkUrl = null , bool storeInDatabase = true)
         {
-            var notification = new Notification
+            if (storeInDatabase)
             {
-                UserId = userId,
-                Message = message,
-                Type = type,
-                IsRead = false,
-                CreatedAt = DateTime.Now,
-            };
-            context.Notifications.Add(notification);
-            await context.SaveChangesAsync();
+                var notification = new Notification
+                {
+                    UserId = userId,
+                    Message = message,
+                    Type = type,
+                    IsRead = false,
+                    CreatedAt = DateTime.Now,
+                };
+                context.Notifications.Add(notification);
+                await context.SaveChangesAsync();
 
+            }
             // إرسال الإشعار عبر البريد الإلكتروني إذا تم تمرير البريد الإلكتروني
             if(!string.IsNullOrEmpty(email))
             {

@@ -6,11 +6,13 @@ using Microsoft.Graph.Models;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Net;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.DTOs.Auth;
 using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.Models.Requests;
+using WebApplicationFlowSync.Models.Requests.WebApplicationFlowSync.Models.Requests;
 using WebApplicationFlowSync.services;
 using WebApplicationFlowSync.services.EmailService;
 using WebApplicationFlowSync.services.NotificationService;
@@ -134,6 +136,8 @@ namespace WebApplicationFlowSync.Controllers
         {
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user is null) return Unauthorized("Email not registered.");
+
+            if (user.IsRemoved) return Unauthorized("account is deactivated.");
 
 
             //Check Password
@@ -329,12 +333,45 @@ namespace WebApplicationFlowSync.Controllers
             if (!passwordValid)
                 return BadRequest("Incorrect password.");
 
-            var result = await userManager.DeleteAsync(user);
+            if (user.Role == Role.Member)
+            {
+                bool hasExistingDeleteAccountRequest = await context.PendingMemberRequests.OfType<DeleteAccountRequest>()
+                    .AnyAsync(r =>
+                      r.MemberId == user.Id &&
+                      r.RequestStatus == RequestStatus.Pending);
 
-            if (!result.Succeeded)
-                throw new Exception($"Failed to delete account: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                if (hasExistingDeleteAccountRequest)
+                {
+                    throw new Exception("You already have a pending delete request.");
+                }
 
-            return Ok("Your account has been deleted successfully.");
+                var request = new DeleteAccountRequest
+                {
+                    Reason = dto.Reason,
+                    MemberName = user.FirstName + " " + user.LastName,
+                    MemberId = user.Id,
+                    Email = user.Email,
+                    RequestedAt = DateTime.Now,
+                    RequestStatus = RequestStatus.Pending,
+                    Type = RequestType.DeleteAccount
+                };
+
+                context.PendingMemberRequests.Add(request);
+                await context.SaveChangesAsync();
+
+                await notificationService.SendNotificationAsync(
+                    user.LeaderID,
+                    $"Member {user.FirstName} {user.LastName} has submitted a request to Delete his account",
+                    NotificationType.DeleteAccountRequest);
+                return Ok("Your deletion request has been sent to the leader for approval.");
+            }
+            else
+            {
+                user.IsRemoved = true;
+
+                await userManager.UpdateAsync(user);
+                return Ok("Your account has been deactivated (marked as removed).");
+            }
         }
 
 

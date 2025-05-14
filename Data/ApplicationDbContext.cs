@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.Models.Requests;
+using WebApplicationFlowSync.Models.Requests.WebApplicationFlowSync.Models.Requests;
 
 namespace WebApplicationFlowSync.Data
 {
@@ -77,7 +78,8 @@ namespace WebApplicationFlowSync.Data
            .HasValue<PendingMemberRequest>(RequestType.Base)
            .HasValue<SignUpRequest>(RequestType.SignUp)
            .HasValue<CompleteTaskRequest>(RequestType.CompleteTask)
-           .HasValue<FreezeTaskRequest>(RequestType.FreezeTask);
+           .HasValue<FreezeTaskRequest>(RequestType.FreezeTask)
+           .HasValue<DeleteAccountRequest>(RequestType.DeleteAccount);
 
             //تعديل اسم عمود FRN
             modelBuilder.Entity<CompleteTaskRequest>()

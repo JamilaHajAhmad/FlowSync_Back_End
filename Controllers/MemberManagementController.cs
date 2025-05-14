@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
+using WebApplicationFlowSync.Models.Requests.WebApplicationFlowSync.Models.Requests;
+using WebApplicationFlowSync.services.EmailService;
+using WebApplicationFlowSync.services.NotificationService;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
@@ -16,11 +19,13 @@ namespace WebApplicationFlowSync.Controllers
     {
         private readonly UserManager<AppUser> userManager;
         private readonly ApplicationDbContext context;
+        private readonly IEmailService emailService;
 
-        public MemberManagementController(UserManager<AppUser> userManager , ApplicationDbContext context)
+        public MemberManagementController(UserManager<AppUser> userManager, ApplicationDbContext context, IEmailService emailService)
         {
             this.userManager = userManager;
             this.context = context;
+            this.emailService = emailService;
         }
 
         [HttpGet("all-members")]
@@ -34,7 +39,7 @@ namespace WebApplicationFlowSync.Controllers
 
             foreach (var user in users)
             {
-                if (user.Role != Role.Member || user.EmailConfirmed== false) continue;
+                if (user.Role != Role.Member || user.EmailConfirmed == false) continue;
 
                 int activeTasksCount = user.Tasks?
                     .Count(t => t.Type == TaskStatus.Opened) ?? 0;
@@ -42,7 +47,7 @@ namespace WebApplicationFlowSync.Controllers
                 members.Add(new
                 {
                     user.Id,
-                    FullName= user.FirstName + " " + user.LastName,
+                    FullName = user.FirstName + " " + user.LastName,
                     user.Status,
                     user.Email,
                     OngoingTasks = activeTasksCount,
@@ -60,9 +65,9 @@ namespace WebApplicationFlowSync.Controllers
         {
             var member = await userManager.Users
                 .Include(u => u.Tasks)
-                .FirstOrDefaultAsync(u => u.Id == memberId &&  u.Role == Role.Member);
+                .FirstOrDefaultAsync(u => u.Id == memberId && u.Role == Role.Member);
 
-                if (member == null)
+            if (member == null)
                 return NotFound("User not found.");
 
             var leader = await userManager.GetUserAsync(User);
@@ -72,6 +77,23 @@ namespace WebApplicationFlowSync.Controllers
 
             member.IsRemoved = true;
             await context.SaveChangesAsync();
+
+            var emailDto = new EmailDto()
+            {
+                To = member.Email,
+                Subject = "Account Deactivation Notification",
+                Body = $@"
+                    Dear {member.FirstName},
+
+                    We would like to inform you that your account has been deactivated by your team leader.  
+                    You have been removed from the team and you will no longer be able to access the platform.
+
+                    If you believe this was a mistake or have any questions, please contact your team leader directly.
+
+                    Best regards,  
+                    FlowSync Team"
+            };
+            await emailService.sendEmailAsync(emailDto);
 
             return Ok("Member has been removed successfully.Please reassign his tasks");
 
@@ -85,7 +107,7 @@ namespace WebApplicationFlowSync.Controllers
                 .Include(u => u.Tasks)
                 .Select(u => new
                 {
-                    Id = u.Id,   
+                    Id = u.Id,
                     FullName = u.FirstName + " " + u.LastName,
                     PictureURL = u.PictureURL,
                     OngoingTasks = u.Tasks.Count(t => t.Type == TaskStatus.Opened)
@@ -94,6 +116,7 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok(members);
         }
+
     }
 
 }

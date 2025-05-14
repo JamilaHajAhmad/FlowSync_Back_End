@@ -34,6 +34,13 @@ namespace WebApplicationFlowSync.services.EmailService
         {
             try
             {
+                if (!request.Body.Contains("<html") && !request.Body.Contains("<div"))
+                {
+                    request.Body = EmailTemplateBuilder.BuildTemplate(
+                        "FlowSync Notification",
+                        request.Body
+                    );
+                }
                 await SendEmailBySmtpClientAsync(request);
             }
             catch (Exception ex)

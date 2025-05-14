@@ -30,7 +30,8 @@ namespace WebApplicationFlowSync.Models
         Base,
         SignUp,
         CompleteTask,
-        FreezeTask
+        FreezeTask,
+        DeleteAccount
     }
 
     public enum RequestStatus
