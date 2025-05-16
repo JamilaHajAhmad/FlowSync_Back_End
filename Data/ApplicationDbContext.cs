@@ -79,7 +79,8 @@ namespace WebApplicationFlowSync.Data
            .HasValue<SignUpRequest>(RequestType.SignUp)
            .HasValue<CompleteTaskRequest>(RequestType.CompleteTask)
            .HasValue<FreezeTaskRequest>(RequestType.FreezeTask)
-           .HasValue<DeleteAccountRequest>(RequestType.DeleteAccount);
+           .HasValue<DeleteAccountRequest>(RequestType.DeleteAccount)
+            .HasValue <ChangeStatusRequest>(RequestType.ChangeStatus);
 
             //تعديل اسم عمود FRN
             modelBuilder.Entity<CompleteTaskRequest>()

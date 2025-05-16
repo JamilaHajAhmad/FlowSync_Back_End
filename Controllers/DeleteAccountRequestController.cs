@@ -68,7 +68,7 @@ namespace WebApplicationFlowSync.Controllers
                 return NotFound("Delete account request not found.");
 
             if (request.RequestStatus != RequestStatus.Pending)
-                return BadRequest("This request has already been handled.");
+                return BadRequest("This request has already been processed.");
 
             request.RequestStatus = RequestStatus.Approved;
 

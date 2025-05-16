@@ -109,6 +109,9 @@ namespace WebApplicationFlowSync.Controllers
             if (request == null)
                 return NotFound("Complete task request not found.");
 
+            if (request.RequestStatus != RequestStatus.Pending)
+                return BadRequest("This request has already been processed.");
+
             var task = await context.Tasks.FirstOrDefaultAsync(t => t.FRNNumber == request.FRNNumber && t.UserID == request.MemberId);
 
             if (task == null)

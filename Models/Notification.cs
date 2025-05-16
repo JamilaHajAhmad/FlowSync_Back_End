@@ -30,6 +30,7 @@ namespace WebApplicationFlowSync.Models
         DeleteAccountRequest,
         Approval,
         Rejection,
+        ChangeStatusRequest,
         CompleteTaskRequest,
         FreezeTaskRequest,
         Info,

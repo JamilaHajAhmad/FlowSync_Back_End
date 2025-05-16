@@ -45,13 +45,13 @@ namespace WebApplicationFlowSync.Controllers
                     throw new Exception("Invalid task.");
 
 
-                bool hasExistingCompleteRequest = await context.PendingMemberRequests.OfType<FreezeTaskRequest>()
+                bool hasExistingFreezeRequest = await context.PendingMemberRequests.OfType<FreezeTaskRequest>()
                  .AnyAsync(r =>
                   r.FRNNumber == dto.FRNNumber &&
                   r.MemberId == member.Id &&
                   r.RequestStatus == RequestStatus.Pending);
 
-                if (hasExistingCompleteRequest)
+                if (hasExistingFreezeRequest)
                     return BadRequest("You already have a pending freeze request for this task.");
 
 
