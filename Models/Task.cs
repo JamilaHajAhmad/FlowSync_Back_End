@@ -22,6 +22,7 @@ namespace WebApplicationFlowSync.Models
 
         public string? CaseType { get; set; } = null;
         public TaskStatus Type { get; set; } = TaskStatus.Opened;
+        public bool IsDelayed { get; set; } = false;
         public TaskPriority Priority { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime Deadline { get; set; }

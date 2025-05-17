@@ -110,7 +110,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> GetMembersWithOngoingTasks()
         {
             var members = await userManager.Users
-                .Where(u => u.Role == Role.Member && u.EmailConfirmed == true && !u.IsRemoved)
+                .Where(u => u.Role == Role.Member && u.EmailConfirmed == true && u.Status == UserStatus.On_Duty && !u.IsRemoved)
                 .Include(u => u.Tasks)
                 .Select(u => new
                 {

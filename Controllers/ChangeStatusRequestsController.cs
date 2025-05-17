@@ -58,7 +58,7 @@ namespace WebApplicationFlowSync.Controllers
                 NotificationType.Approval
             );
 
-            return Ok("تمت الموافقة على الطلب وتم تغيير الحالة.");
+            return Ok("Approve the request and change the status.");
         }
 
         [HttpPost("reject/{requestId}")]
@@ -105,6 +105,7 @@ namespace WebApplicationFlowSync.Controllers
                 .Select(r => new
                 {
                     r.RequestId,
+                    r.MemberId,
                     r.MemberName,
                     r.Email,
                     r.RequestedAt,

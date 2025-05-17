@@ -207,27 +207,35 @@ namespace WebApplicationFlowSync.Controllers
             if (task == null)
                 return NotFound("task can not be found.");
 
-            task.Type = TaskStatus.Delayed;
-            await context.SaveChangesAsync();
+            if (DateTime.Now > task.Deadline && task.Type == TaskStatus.Opened)
+            {
+                task.Type = TaskStatus.Delayed;
+                task.IsDelayed = true;
+                await context.SaveChangesAsync();
+
+                await notificationService.SendNotificationAsync(
+                    task.UserID,
+                      $"You have been marked as delayed in delivering task #{task.FRNNumber}. Please follow up.",
+                      NotificationType.Warning
+                );
+
+                var leaderId = task.User.LeaderID;
 
 
-            await notificationService.SendNotificationAsync(
-                task.UserID,
-                  $"You have been marked as delayed in delivering task #{task.FRNNumber}. Please follow up.",
-                  NotificationType.Warning
-            );
+                await notificationService.SendNotificationAsync(
+                   leaderId,
+                   $"Your team member {task.User.FirstName} {task.User.LastName} has a delayed task (#{task.FRNNumber}).",
+                   NotificationType.Warning
+                  );
 
-            var leaderId = task.User.LeaderID;
+                return Ok("The task status has been changed to delayed.");
 
-            
-             await notificationService.SendNotificationAsync(
-                leaderId,
-                $"Your team member {task.User.FirstName} {task.User.LastName} has a delayed task (#{task.FRNNumber}).",
-                NotificationType.Warning
-               );
-   
-
-            return Ok("The task status has been changed to delayed.");
+            }
+            else
+            {
+                return BadRequest("Task is not eligible to be marked as delayed.");
+            }
+           
         }
 
 
