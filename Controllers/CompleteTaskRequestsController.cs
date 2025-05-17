@@ -96,7 +96,7 @@ namespace WebApplicationFlowSync.Controllers
         }
 
         [HttpPost("approve-complete-task/{requestId}")]
-        [Authorize(Roles = "Leader")] // حسب الدور المناسب
+        [Authorize(Roles = "Leader")] 
         public async Task<IActionResult> ApproveRequest(int requestId)
         {
             var user = await userManager.GetUserAsync(User);

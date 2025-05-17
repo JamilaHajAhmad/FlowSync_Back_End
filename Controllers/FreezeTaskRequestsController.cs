@@ -121,6 +121,11 @@ namespace WebApplicationFlowSync.Controllers
             task.Type = TaskStatus.Frozen;
             task.FrozenAt = DateTime.Now;
             task.Reason = request.Reason;
+
+
+            // تخزين الوقت المتبقي حتى الموعد النهائي وقت التجميد
+            task.FrozenCounter = task.Deadline - DateTime.Now;
+
             await context.SaveChangesAsync();
 
             await notificationService.SendNotificationAsync(
@@ -202,9 +207,18 @@ namespace WebApplicationFlowSync.Controllers
             if (task == null)
                 return NotFound("task can not be found.");
 
+            // حساب الموعد الجديد 
+            if (task.FrozenCounter.HasValue)
+            {
+                task.Deadline = DateTime.Now + task.FrozenCounter.Value;
+                task.FrozenCounter = null;
+            }
+
+            // إزالة التجميد
             task.Type = TaskStatus.Opened;
             task.FrozenAt = null;
             task.Reason = null;
+  
             await context.SaveChangesAsync();
 
            return Ok("Task has been unfrozen successfully");

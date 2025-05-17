@@ -29,6 +29,8 @@ namespace WebApplicationFlowSync.Models
         public DateTime? CompletedAt { get; set; } = null;
         public DateTime? FrozenAt { get; set; } = null;
 
+        public TimeSpan? FrozenCounter { get; set; } = null;
+
         public string? Reason { get; set; }
 
         public string? Notes { get; set; }
@@ -60,6 +62,15 @@ namespace WebApplicationFlowSync.Models
         {
             get
             {
+                if(Type == TaskStatus.Frozen && FrozenCounter != null)
+                {
+                    return FrozenCounter.Value;
+                }
+
+                //if(Type == TaskStatus.Completed)
+                //{
+                //    return TimeSpan.Zero;
+                //}
                 int allowedWorkingDays = Priority switch
                 {
                     TaskPriority.Urgent => 2,
