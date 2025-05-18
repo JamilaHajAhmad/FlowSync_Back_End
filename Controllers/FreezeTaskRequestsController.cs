@@ -123,10 +123,24 @@ namespace WebApplicationFlowSync.Controllers
             task.Reason = request.Reason;
 
 
-            // تخزين الوقت المتبقي حتى الموعد النهائي وقت التجميد
-            task.FrozenCounter = task.Deadline - DateTime.Now;
+            //// تخزين الوقت المتبقي حتى الموعد النهائي وقت التجميد
+            //var timeRemaining = task.Deadline - DateTime.Now;
+            ////يمكن أن يحصل خطأ الحفظ لو أصبحت القيمة سالبة في لحظة الحفظ.
+            //task.FrozenCounter = timeRemaining > TimeSpan.Zero ? timeRemaining : TimeSpan.Zero;
 
-            await context.SaveChangesAsync();
+            try
+            {
+                var timeLeft = task.Deadline - DateTime.Now;
+                task.FrozenCounterValue = timeLeft > TimeSpan.Zero ? timeLeft : TimeSpan.Zero;
+
+                await context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException?.Message ?? ex.Message);
+            }
+
+            //await context.SaveChangesAsync();
 
             await notificationService.SendNotificationAsync(
                 request.MemberId,
@@ -208,9 +222,9 @@ namespace WebApplicationFlowSync.Controllers
                 return NotFound("task can not be found.");
 
             // حساب الموعد الجديد 
-            if (task.FrozenCounter.HasValue)
+            if (task.FrozenCounterValue.HasValue)
             {
-                task.Deadline = DateTime.Now + task.FrozenCounter.Value;
+                task.Deadline = DateTime.Now + task.FrozenCounterValue.Value;
                 task.FrozenCounter = null;
             }
 

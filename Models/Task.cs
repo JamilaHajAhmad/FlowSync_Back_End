@@ -29,7 +29,16 @@ namespace WebApplicationFlowSync.Models
         public DateTime? CompletedAt { get; set; } = null;
         public DateTime? FrozenAt { get; set; } = null;
 
-        public TimeSpan? FrozenCounter { get; set; } = null;
+        //ملاحظة : هنا لا يمكن ان نخزن قيمة TimeSpan, لانه فقط مسموع فيه اكثر شيء 23ساعة و 59د و 59ث
+        public string? FrozenCounter { get; set; } = null;
+
+        // هذا حقل افتراضي (لا يُخزن في قاعدة البيانات) تتعامل معه في الكود كـ TimeSpan
+        [NotMapped]
+        public TimeSpan? FrozenCounterValue
+        {
+            get => string.IsNullOrEmpty(FrozenCounter) ? null : TimeSpan.Parse(FrozenCounter);
+            set => FrozenCounter = value?.ToString();
+        }
 
         public string? Reason { get; set; }
 
@@ -64,13 +73,13 @@ namespace WebApplicationFlowSync.Models
             {
                 if(Type == TaskStatus.Frozen && FrozenCounter != null)
                 {
-                    return FrozenCounter.Value;
+                    return FrozenCounterValue.Value;
                 }
 
-                //if(Type == TaskStatus.Completed)
-                //{
-                //    return TimeSpan.Zero;
-                //}
+                if (Type == TaskStatus.Completed)
+                {
+                    return TimeSpan.Zero;
+                }
                 int allowedWorkingDays = Priority switch
                 {
                     TaskPriority.Urgent => 2,

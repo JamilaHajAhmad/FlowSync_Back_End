@@ -16,6 +16,7 @@ using WebApplicationFlowSync.services.SettingService;
 using WebApplicationFlowSync.services.ExternalServices;
 using WebApplicationFlowSync.Classes;
 using WebApplicationFlowSync.services.NotificationService;
+using WebApplicationFlowSync.services.BackgroundServices;
 
 namespace WebApplicationFlowSync
 {
@@ -54,7 +55,6 @@ namespace WebApplicationFlowSync
             //2FA service 
             builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
                options.TokenLifespan = TimeSpan.FromHours(3)); // مدة صلاحية رمز 2FA
-
 
 
 
@@ -135,6 +135,10 @@ namespace WebApplicationFlowSync
             RoleClaimType = ClaimTypes.Role
         };
     });
+
+            //BackgroundService (TaskReminderService)
+            builder.Services.AddHostedService<TaskReminderService>();
+
 
             builder.Services.AddAuthorization();
 
