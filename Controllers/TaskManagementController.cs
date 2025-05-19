@@ -138,7 +138,7 @@ namespace WebApplicationFlowSync.Controllers
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
                     Notes = t.Notes,
-                    Counter = t.Counter,
+                    Counter = t.Counter.ToString(),
                     AssignedMember = new
                     {
                         Id = t.User.Id,
@@ -190,7 +190,7 @@ namespace WebApplicationFlowSync.Controllers
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
                     Notes = t.Notes,
-                    Counter = t.Counter
+                    Counter = t.Counter.ToString()
                 })
                 .ToList();
 
