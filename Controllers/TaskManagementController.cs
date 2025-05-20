@@ -138,9 +138,7 @@ namespace WebApplicationFlowSync.Controllers
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
                     Notes = t.Notes,
-                    Counter = t.Counter != null
-                            ? $"{t.Counter.Days}d {t.Counter.Hours}h {t.Counter.Minutes}m"
-    :                         "N/A"
+                    Counter = t.Counter.ToString(@"dd\:hh\:mm\:ss")
 ,
                     AssignedMember = new
                     {
@@ -193,7 +191,7 @@ namespace WebApplicationFlowSync.Controllers
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
                     Notes = t.Notes,
-                    Counter = t.Counter.ToString()
+                    Counter = t.Counter.ToString(@"dd\.hh\:mm\:ss") 
                 })
                 .ToList();
 
