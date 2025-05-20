@@ -37,7 +37,7 @@ namespace WebApplicationFlowSync.Models
         public TimeSpan? FrozenCounterValue
         {
             get => string.IsNullOrEmpty(FrozenCounter) ? null : TimeSpan.Parse(FrozenCounter);
-            set => FrozenCounter = value?.ToString(@"dd\:hh\:mm\:ss");
+            set => FrozenCounter = value?.ToString(@"d\.hh\:mm\:ss");
         }
 
         public string? Reason { get; set; }
