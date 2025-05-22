@@ -51,6 +51,24 @@ namespace WebApplicationFlowSync.Models
 
         // العلاقة مع التقارير
         public ICollection<TaskReport>? TasksReports { get; set; }
+        //public void SetDeadline()
+        //{
+        //    if (Priority == TaskPriority.Urgent)
+        //    {
+        //        Deadline = CreatedAt.AddMinutes(5);
+        //    }
+        //    else
+        //    {
+        //        int allowedWorkingDays = Priority switch
+        //        {
+        //            TaskPriority.Regular => 10,
+        //            TaskPriority.Important => 10,
+        //            _ => 0
+        //        };
+
+        //        Deadline = AddWorkingDays(CreatedAt, allowedWorkingDays);
+        //    }
+        //}
 
 
         public void SetDeadline()
@@ -71,7 +89,7 @@ namespace WebApplicationFlowSync.Models
         {
             get
             {
-                if(Type == TaskStatus.Frozen && FrozenCounter != null)
+                if (Type == TaskStatus.Frozen && FrozenCounter != null)
                 {
                     return FrozenCounterValue.Value;
                 }
@@ -79,6 +97,10 @@ namespace WebApplicationFlowSync.Models
                 if (Type == TaskStatus.Completed)
                 {
                     return TimeSpan.Zero;
+                }
+                if (Type == TaskStatus.Delayed)
+                {
+
                 }
                 int allowedWorkingDays = Priority switch
                 {
@@ -91,10 +113,61 @@ namespace WebApplicationFlowSync.Models
                 // نحسب التاريخ النهائي حسب أيام العمل فقط
                 DateTime deadline = AddWorkingDays(CreatedAt, allowedWorkingDays);
 
+                if (Type == TaskStatus.Delayed)
+                {
+                    // إذا كانت متأخرة، نحسب كم من الوقت تجاوز الموعد النهائي
+                    return deadline - DateTime.Now; // ستكون موجبة، ولكنها تُفهم كـ "سلبية" من حيث التجاوز
+                }
                 // الفارق بين الآن والموعد النهائي
                 return deadline - DateTime.Now;
             }
         }
+
+        //[NotMapped]
+        //public TimeSpan Counter
+        //{
+        //    get
+        //    {
+        //        if (Type == TaskStatus.Frozen && FrozenCounter != null)
+        //        {
+        //            return FrozenCounterValue.Value;
+        //        }
+
+        //        if (Type == TaskStatus.Completed)
+        //        {
+        //            return TimeSpan.Zero;
+        //        }
+
+        //        DateTime deadline;
+
+        //        if (Priority == TaskPriority.Urgent)
+        //        {
+        //            // فقط 5 دقائق لمهام عاجلة
+        //            deadline = CreatedAt.AddMinutes(5);
+        //        }
+        //        else
+        //        {
+        //            int allowedWorkingDays = Priority switch
+        //            {
+        //                TaskPriority.Regular => 10,
+        //                TaskPriority.Important => 10,
+        //                _ => 0
+        //            };
+
+        //            // نحسب الموعد النهائي حسب أيام العمل
+        //            deadline = AddWorkingDays(CreatedAt, allowedWorkingDays);
+        //        }
+
+        //        if (Type == TaskStatus.Delayed)
+        //        {
+        //            // نحسب كم من الوقت تجاوز الموعد النهائي (سالبة)
+        //            return deadline - DateTime.Now;
+        //        }
+
+        //        // نحسب الوقت المتبقي حتى الموعد النهائي
+        //        return deadline - DateTime.Now;
+        //    }
+        //}
 
         private DateTime AddWorkingDays(DateTime startDate, int workingDays)
         {

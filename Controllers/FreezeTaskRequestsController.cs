@@ -225,12 +225,12 @@ namespace WebApplicationFlowSync.Controllers
             if (task.FrozenCounterValue.HasValue)
             {
                 task.Deadline = DateTime.Now + task.FrozenCounterValue.Value;
-                task.FrozenCounter = null;
             }
 
             // إزالة التجميد
             task.Type = TaskStatus.Opened;
             task.FrozenAt = null;
+            task.FrozenCounter = null;//إعادة الترتيب لحذف FrozenCounter بعد الانتهاء من استخدامها.
             task.Reason = null;
   
             await context.SaveChangesAsync();

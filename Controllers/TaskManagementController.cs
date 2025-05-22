@@ -138,7 +138,7 @@ namespace WebApplicationFlowSync.Controllers
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
                     Notes = t.Notes,
-                    Counter = t.Counter.ToString(@"d\.hh\:mm\:ss")
+                    Counter = (t.Counter < TimeSpan.Zero ? "-" : "") + t.Counter.Duration().ToString(@"d\.hh\:mm\:ss")
 ,
                     AssignedMember = new
                     {
@@ -191,52 +191,11 @@ namespace WebApplicationFlowSync.Controllers
                     FrozenAt = t.FrozenAt,
                     Reason = t.Reason,
                     Notes = t.Notes,
-                    Counter = t.Counter.ToString(@"d\.hh\:mm\:ss")
+                    Counter = (t.Counter < TimeSpan.Zero ? "-" : "") + t.Counter.Duration().ToString(@"d\.hh\:mm\:ss")
                 })
                 .ToList();
 
             return Ok(tasks);
-        }
-
-        [HttpPost("mark-delayed-task")]
-        public async Task<IActionResult> ConvertToDelayed([FromBody] DelayTaskDto dto)
-        {
-            var task = await context.Tasks
-                .Include(t => t.User) // ضروري حتى نستطيع الوصول إلى بيانات المستخدم وقائده
-                .FirstOrDefaultAsync(t => t.FRNNumber == dto.FRNNumber);
-
-            if (task == null)
-                return NotFound("task can not be found.");
-
-            if (DateTime.Now > task.Deadline && task.Type == TaskStatus.Opened)
-            {
-                task.Type = TaskStatus.Delayed;
-                task.IsDelayed = true;
-                await context.SaveChangesAsync();
-
-                await notificationService.SendNotificationAsync(
-                    task.UserID,
-                      $"You have been marked as delayed in delivering task #{task.FRNNumber}. Please follow up.",
-                      NotificationType.Warning
-                );
-
-                var leaderId = task.User.LeaderID;
-
-
-                await notificationService.SendNotificationAsync(
-                   leaderId,
-                   $"Your team member {task.User.FirstName} {task.User.LastName} has a delayed task (#{task.FRNNumber}).",
-                   NotificationType.Warning
-                  );
-
-                return Ok("The task status has been changed to delayed.");
-
-            }
-            else
-            {
-                return BadRequest("Task is not eligible to be marked as delayed.");
-            }
-           
         }
 
 
