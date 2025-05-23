@@ -50,7 +50,7 @@ namespace WebApplicationFlowSync.Models
 
 
         // العلاقة مع التقارير
-        public ICollection<TaskReport>? TasksReports { get; set; }
+        //public ICollection<TaskReport>? TasksReports { get; set; }
         //public void SetDeadline()
         //{
         //    if (Priority == TaskPriority.Urgent)

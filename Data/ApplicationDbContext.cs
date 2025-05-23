@@ -43,22 +43,22 @@ namespace WebApplicationFlowSync.Data
 
 
             //علاقة التقرير مع المهام عبر جدول الربط(بدون Cascade)
-            modelBuilder.Entity<TaskReport>()
-                .HasKey(tr => new { tr.ReportID, tr.FRNNumber });
+            //modelBuilder.Entity<TaskReport>()
+            //    .HasKey(tr => new { tr.ReportID, tr.FRNNumber });
 
 
 
-            modelBuilder.Entity<TaskReport>()
-                        .HasOne(tr => tr.Report)
-                        .WithMany(r => r.TasksReports)
-                        .HasForeignKey(tr => tr.ReportID)
-                        .OnDelete(DeleteBehavior.NoAction);
+            //modelBuilder.Entity<TaskReport>()
+            //            .HasOne(tr => tr.Report)
+            //            .WithMany(r => r.TasksReports)
+            //            .HasForeignKey(tr => tr.ReportID)
+            //            .OnDelete(DeleteBehavior.NoAction);
 
-            modelBuilder.Entity<TaskReport>()
-                .HasOne(tr => tr.Task)
-                .WithMany(t => t.TasksReports)
-                .HasForeignKey(tr => tr.FRNNumber)
-                .OnDelete(DeleteBehavior.NoAction);
+            //modelBuilder.Entity<TaskReport>()
+            //    .HasOne(tr => tr.Task)
+            //    .WithMany(t => t.TasksReports)
+            //    .HasForeignKey(tr => tr.FRNNumber)
+            //    .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<PendingMemberRequest>()
       .HasOne(p => p.Member)
@@ -96,7 +96,7 @@ namespace WebApplicationFlowSync.Data
         public DbSet<AppUser> Users { get; set; }
         public DbSet<Models.Task> Tasks { get; set; }
         public DbSet<Report> Reports { get; set; }
-        public DbSet<TaskReport> TasksReports { get; set; }
+        //public DbSet<TaskReport> TasksReports { get; set; }
         public DbSet<PendingMemberRequest> PendingMemberRequests { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<Notification> Notifications { get; set; }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.Kiota.Abstractions.Extensions;
 using WebApplicationFlowSync.Data;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
@@ -99,35 +101,27 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(data);
         }
 
-        //[HttpGet("team-progress-kpi")]
-        //public async Task<IActionResult> GetTeamProgressVsKPI()
-        //{
-        //    var currentYear = DateTime.UtcNow.Year;
+        [HttpGet("requests-stream-by-type")]
+        public async Task<IActionResult> GetRequestsStreamByType()
+        {
+            var data = await context.PendingMemberRequests
+                .GroupBy(r => new
+                {
+                    r.RequestedAt.Year,
+                    r.RequestedAt.Month,
+                    r.Type
+                })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Type = g.Key.Type,
+                    Count = g.Count()
+                })
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                .ToListAsync();
 
-        //    // فرضًا: عندنا جدول Members فيه KPI سنوي لكل عضو
-        //    var data = await context.Users
-        //        .Select(member => new
-        //        {
-        //            Member = member.FirstName+" "+ member.LastName,
-        //            KPI = member.AnnualKPI, // مثلاً 1000 مهمة في السنة
-        //            MonthlyData = context.Tasks
-        //                .Where(t => t.UserID == member.Id
-        //                            && t.Type == TaskStatus.Completed
-        //                            && t.CompletedAt.HasValue
-        //                            && t.CompletedAt.Value.Year == currentYear)
-        //                .GroupBy(t => t.CompletedAt.Value.Month)
-        //                .Select(g => new
-        //                {
-        //                    Month = g.Key,
-        //                    CompletedTasks = g.Count()
-        //                }).ToList()
-        //        }).ToListAsync();
-
-        //    return Ok(data);
-        //}
-
-
-
-
+            return Ok(data);
+        }
     }
 }
