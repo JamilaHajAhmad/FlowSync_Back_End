@@ -1,23 +1,27 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.Json;
-using Microsoft.Kiota.Abstractions.Extensions;
 using Newtonsoft.Json;
 using WebApplicationFlowSync.Data;
+using WebApplicationFlowSync.DTOs;
+using WebApplicationFlowSync.Models;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
 {
+    [Authorize(Roles = "Leader")]
     [Route("api/[controller]")]
     [ApiController]
     public class ReportsController : ControllerBase
     {
         private readonly ApplicationDbContext context;
+        private readonly UserManager<AppUser> userManager;
 
-        public ReportsController(ApplicationDbContext context)
+        public ReportsController(ApplicationDbContext context , UserManager<AppUser> userManager)
         {
             this.context = context;
+            this.userManager = userManager;
         }
 
         //Bar Chart - Task Distribution by Team Member
@@ -41,7 +45,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> GetTasksOverMonths()
         {
             var data = await context.Tasks
-                .GroupBy(t => new { t.CreatedAt.Year , t.CreatedAt.Month})
+                .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month })
                 .Select(g => new
                 {
                     Year = g.Key.Year,
@@ -124,5 +128,142 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok(data);
         }
+
+        [HttpPost("save-report/{reportType}")]
+        public async Task<IActionResult> SaveReport(string reportType, [FromBody] SaveReportRequestDto dto)
+        {
+            object data;
+            string filtersApplied;
+
+            switch (reportType.ToLower())
+            {
+                case "task-distribution-by-member":
+                    data = await context.Tasks
+                        .GroupBy(t => new { t.UserID, t.User.FirstName, t.User.LastName, t.Type })
+                        .Select(g => new
+                        {
+                            Member = g.Key.FirstName + " " + g.Key.LastName,
+                            Status = g.Key.Type.ToString(),
+                            Count = g.Count()
+                        })
+                        .ToListAsync();
+
+                    filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "Member Name and Task Status" });
+                    break;
+
+                case "tasks-over-months":
+                    data = await context.Tasks
+                        .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month })
+                        .Select(g => new
+                        {
+                            Year = g.Key.Year,
+                            Month = g.Key.Month,
+                            Created = g.Count(),
+                            Completed = g.Count(t => t.Type == TaskStatus.Completed)
+                        })
+                        .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                        .ToListAsync();
+
+                    filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "CreatedAt.Year + CreatedAt.Month" });
+                    break;
+
+                case "task-status-summary":
+                    data = await context.Tasks
+                        .GroupBy(t => new { t.Type })
+                        .Select(g => new
+                        {
+                            Status = g.Key.Type.ToString(),
+                            Count = g.Count()
+                        })
+                        .ToListAsync();
+
+                    filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "Task Type" });
+                    break;
+
+                case "calendar-activity":
+                    data = await context.Tasks
+                        .GroupBy(t => t.CreatedAt.Date)
+                        .Select(g => new
+                        {
+                            Date = g.Key,
+                            Count = g.Count()
+                        })
+                        .OrderBy(x => x.Date)
+                        .ToListAsync();
+
+                    filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "CreatedAt.Date" });
+                    break;
+
+                case "tasks-by-case-source":
+                    data = await context.Tasks
+                        .GroupBy(t => new { t.CaseSource, t.Type })
+                        .Select(g => new
+                        {
+                            Department = g.Key.CaseSource.ToString(),
+                            Status = g.Key.Type,
+                            Count = g.Count()
+                        })
+                        .ToListAsync();
+
+                    filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "CaseSource + Type" });
+                    break;
+
+                case "requests-stream-by-type":
+                    data = await context.PendingMemberRequests
+                        .GroupBy(r => new { r.RequestedAt.Year, r.RequestedAt.Month, r.Type })
+                        .Select(g => new
+                        {
+                            Year = g.Key.Year,
+                            Month = g.Key.Month,
+                            Type = g.Key.Type,
+                            Count = g.Count()
+                        })
+                        .OrderBy(x => x.Year).ThenBy(x => x.Month)
+                        .ToListAsync();
+
+                    filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "RequestedAt.Year + Month + Request Type" });
+                    break;
+
+                default:
+                    return BadRequest("Unknown report type");
+            }
+            // تحويل البيانات إلى JSON
+            var dataJson = JsonConvert.SerializeObject(data);
+            var user = await userManager.GetUserAsync(User);
+
+            var report = new Report
+            {
+                UserID = user.Id,
+                Title = reportType.Replace("-", " ").ToUpperInvariant(),
+                DataJson = dataJson,
+                FiltersApplied = filtersApplied,
+                CreatedAt = DateTime.Now,
+                Description = dto.Description ?? string.Empty
+            };
+
+            context.Reports.Add(report);
+            await context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        [HttpGet("all-reports")]
+        public async Task<IActionResult> GetAllReports()
+        {
+            var reports = await context.Reports
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new
+                {
+                    r.ReportID,
+                    r.Title,
+                    r.Description,
+                    r.FiltersApplied,
+                    r.CreatedAt,
+                    r.DataJson
+                })
+                .ToListAsync();
+
+            return Ok(reports);
+         }
     }
 }

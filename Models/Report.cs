@@ -13,7 +13,7 @@ namespace WebApplicationFlowSync.Models
         public AppUser? User { get; set; }
 
         public string Title { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         //بديل مبسط لعلاقة Many-to-Many مع Task
         public string? RelatedTaskIdsJson { get; set; }  // قائمة FRNNumbers إذا كان متعلقًا بمهام
