@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Kiota.Abstractions.Extensions;
+using Newtonsoft.Json;
 using WebApplicationFlowSync.Data;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
@@ -20,7 +21,7 @@ namespace WebApplicationFlowSync.Controllers
         }
 
         //Bar Chart - Task Distribution by Team Member
-        [HttpGet("tak-distribution-by-member")]
+        [HttpGet("task-distribution-by-member")]
         public async Task<IActionResult> GetTaskDistributionByMember()
         {
             var data = await context.Tasks
