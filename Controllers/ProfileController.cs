@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
@@ -135,6 +136,30 @@ namespace WebApplicationFlowSync.Controllers
                 responseMessage += " " + statusMessage;
 
             return Ok(responseMessage);
+
+        }
+
+        [HttpPatch("profile-picture")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfilePicture([FromBody] UpdateProfilePictureDto dto)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized("User not found.");
+
+            if (!string.IsNullOrEmpty(dto.PictureURL))
+            {
+                user.PictureURL = dto.PictureURL;
+
+                var result = await userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                    return BadRequest("Failed to update profile picture.");
+
+                return Ok(new { message = "Profile picture updated successfully", imageUrl = user.PictureURL });
+            }
+
+            // لم يتم إرسال صورة، لا حاجة للتحديث
+            return Ok(new { message = "No picture was provided. Profile picture unchanged." });
 
         }
 
