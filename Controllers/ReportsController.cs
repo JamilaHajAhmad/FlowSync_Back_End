@@ -17,11 +17,13 @@ namespace WebApplicationFlowSync.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
+        private readonly IWebHostEnvironment env;
 
-        public ReportsController(ApplicationDbContext context , UserManager<AppUser> userManager)
+        public ReportsController(ApplicationDbContext context , UserManager<AppUser> userManager , IWebHostEnvironment env)
         {
             this.context = context;
             this.userManager = userManager;
+            this.env = env;
         }
 
         //Bar Chart - Task Distribution by Team Member
@@ -240,8 +242,8 @@ namespace WebApplicationFlowSync.Controllers
                 CreatedAt = DateTime.Now,
                 Description = dto.Description ?? string.Empty
             };
-
             context.Reports.Add(report);
+
             await context.SaveChangesAsync();
 
             return Ok();
