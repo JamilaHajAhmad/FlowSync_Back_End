@@ -10,7 +10,7 @@ using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Authorize(Roles = "Leader")]
+    //[Authorize(Roles = "Leader")]
     [Route("api/[controller]")]
     [ApiController]
     public class ReportsController : ControllerBase
