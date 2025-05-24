@@ -139,29 +139,29 @@ namespace WebApplicationFlowSync.Controllers
 
         }
 
-        [HttpPatch("profile-picture")]
-        [Authorize]
-        public async Task<IActionResult> UpdateProfilePicture([FromBody] UpdateProfilePictureDto dto)
-        {
-            var user = await userManager.GetUserAsync(User);
-            if (user == null)
-                return Unauthorized("User not found.");
+        //[HttpPatch("profile-picture")]
+        //[Authorize]
+        //public async Task<IActionResult> UpdateProfilePicture([FromBody] UpdateProfilePictureDto dto)
+        //{
+        //    var user = await userManager.GetUserAsync(User);
+        //    if (user == null)
+        //        return Unauthorized("User not found.");
 
-            if (!string.IsNullOrEmpty(dto.PictureURL))
-            {
-                user.PictureURL = dto.PictureURL;
+        //    if (!string.IsNullOrEmpty(dto.PictureURL))
+        //    {
+        //        user.PictureURL = dto.PictureURL;
 
-                var result = await userManager.UpdateAsync(user);
-                if (!result.Succeeded)
-                    return BadRequest("Failed to update profile picture.");
+        //        var result = await userManager.UpdateAsync(user);
+        //        if (!result.Succeeded)
+        //            return BadRequest("Failed to update profile picture.");
 
-                return Ok(new { message = "Profile picture updated successfully", imageUrl = user.PictureURL });
-            }
+        //        return Ok(new { message = "Profile picture updated successfully", imageUrl = user.PictureURL });
+        //    }
 
-            // لم يتم إرسال صورة، لا حاجة للتحديث
-            return Ok(new { message = "No picture was provided. Profile picture unchanged." });
+        //    // لم يتم إرسال صورة، لا حاجة للتحديث
+        //    return Ok(new { message = "No picture was provided. Profile picture unchanged." });
 
-        }
+        //}
 
     }
 }

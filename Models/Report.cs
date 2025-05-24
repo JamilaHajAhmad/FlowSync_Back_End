@@ -18,8 +18,9 @@ namespace WebApplicationFlowSync.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public string? ChartFilePath { get; set; }
-        public string? ChartFileContentType { get; set; }
+        public byte[]? FileData { get; set; } // محتوى الملف نفسه
+        public string? FileName { get; set; } // اسم الملف
+        public string? FileContentType { get; set; } // نوع الملف (MIME type)
 
     }
 }
