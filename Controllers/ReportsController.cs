@@ -132,7 +132,7 @@ namespace WebApplicationFlowSync.Controllers
         }
 
         [HttpPost("save-report/{reportType}")]
-        public async Task<IActionResult> SaveReport(string reportType, [FromBody] SaveReportRequestDto dto)
+        public async Task<IActionResult> SaveReport(string reportType, [FromForm] SaveReportRequestDto dto, IFormFile? file)
         {
             object data;
             string filtersApplied;
@@ -233,6 +233,31 @@ namespace WebApplicationFlowSync.Controllers
             var dataJson = JsonConvert.SerializeObject(data);
             var user = await userManager.GetUserAsync(User);
 
+
+            // Prepare file data if provided
+            byte[]? fileData = null;
+            string? fileName = null;
+            string? fileContentType = null;
+
+            var allowedTypes = new[] { 
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+
+            if (file != null)
+            {
+                if (file.Length > 10 * 1024 * 1024) // 10 MB
+                    return BadRequest("Maximum allowed file size is 10 MB.");
+
+                if (!allowedTypes.Contains(file.ContentType))
+                    return BadRequest("Only PDF and Excel files are allowed.");
+
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                fileData = memoryStream.ToArray();
+                fileName = file.FileName;
+                fileContentType = file.ContentType;
+            }
+
             var report = new Report
             {
                 UserID = user.Id,
@@ -240,13 +265,15 @@ namespace WebApplicationFlowSync.Controllers
                 DataJson = dataJson,
                 FiltersApplied = filtersApplied,
                 CreatedAt = DateTime.Now,
-                Description = dto.Description ?? string.Empty
+                Description = dto.Description ?? string.Empty,
+                FileData = fileData,
+                FileName = fileName,
+                FileContentType = fileContentType
             };
             context.Reports.Add(report);
-
             await context.SaveChangesAsync();
 
-            return Ok();
+            return Ok("Report saved.");
         }
 
         [HttpGet("all-reports")]
@@ -266,6 +293,6 @@ namespace WebApplicationFlowSync.Controllers
                 .ToListAsync();
 
             return Ok(reports);
-         }
+        }
     }
 }
