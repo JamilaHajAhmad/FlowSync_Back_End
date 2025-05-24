@@ -288,7 +288,9 @@ namespace WebApplicationFlowSync.Controllers
                     r.Description,
                     r.FiltersApplied,
                     r.CreatedAt,
-                    r.DataJson
+                    r.DataJson,
+                    r.FileName,
+                    r.FileData,
                 })
                 .ToListAsync();
 
