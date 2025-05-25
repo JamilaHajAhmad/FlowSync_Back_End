@@ -57,7 +57,7 @@ namespace WebApplicationFlowSync.Controllers
 
 
         [HttpGet("leader/{leaderId}/annual-kpi")]
-        [Authorize(Roles = "leader")]
+        [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetLeaderAnnualKpi(string leaderId)
         {
             var leader = await userManager.Users
