@@ -241,7 +241,9 @@ namespace WebApplicationFlowSync.Controllers
 
             var allowedTypes = new[] { 
                 "application/pdf",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" };
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "text/csv" 
+            };
 
             if (file != null)
             {
