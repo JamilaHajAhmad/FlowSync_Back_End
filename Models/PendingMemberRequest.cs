@@ -2,7 +2,7 @@
 
 namespace WebApplicationFlowSync.Models
 {
-    public class PendingMemberRequest
+    public abstract class PendingMemberRequest
     {
         [Key]
         public int RequestId { get; set; }
@@ -27,7 +27,6 @@ namespace WebApplicationFlowSync.Models
   
     public enum RequestType
     {
-        Base,
         SignUp,
         CompleteTask,
         FreezeTask,

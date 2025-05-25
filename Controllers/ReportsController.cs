@@ -301,10 +301,10 @@ namespace WebApplicationFlowSync.Controllers
                 return BadRequest("Maximum allowed file size is 10 MB.");
 
             var allowedTypes = new[] {
-        "application/pdf",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "text/csv"
-    };
+                "application/pdf",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "text/csv"
+            };
 
             if (!allowedTypes.Contains(file.ContentType))
                 return BadRequest("Only PDF, Excel, or CSV files are allowed.");

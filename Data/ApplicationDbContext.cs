@@ -75,7 +75,6 @@ namespace WebApplicationFlowSync.Data
             //TPH (وراثة)
             modelBuilder.Entity<PendingMemberRequest>()
            .HasDiscriminator<RequestType>("Type")
-           .HasValue<PendingMemberRequest>(RequestType.Base)
            .HasValue<SignUpRequest>(RequestType.SignUp)
            .HasValue<CompleteTaskRequest>(RequestType.CompleteTask)
            .HasValue<FreezeTaskRequest>(RequestType.FreezeTask)
