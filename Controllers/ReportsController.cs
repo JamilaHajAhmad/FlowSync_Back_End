@@ -275,7 +275,7 @@ namespace WebApplicationFlowSync.Controllers
             context.Reports.Add(report);
             await context.SaveChangesAsync();
 
-            return Ok("Report saved.");
+            return Ok(new { message = "Report saved." , report });
         }
 
         [HttpGet("all-reports")]
