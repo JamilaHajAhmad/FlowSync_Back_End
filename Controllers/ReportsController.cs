@@ -275,7 +275,19 @@ namespace WebApplicationFlowSync.Controllers
             context.Reports.Add(report);
             await context.SaveChangesAsync();
 
-            return Ok(new { message = "Report saved." , report });
+            return Ok(new { message = "Report saved." , 
+                report = new
+                {
+                    report.ReportID,
+                    report.Title,
+                    report.Description,
+                    report.CreatedAt,
+                    report.DataJson,
+                    report.FileName,
+                    report.FileContentType,
+                    report.FileData
+                }
+            });
         }
 
         [HttpGet("all-reports")]
