@@ -47,6 +47,8 @@ namespace WebApplicationFlowSync.Models
 
     public ICollection<UserSession>? Sessions { get; set; }
 
+    public ICollection<AnnualKPI>? AnnualKPIs { get; set; }
+
 
         public DateTime? DateOfBirth { get; set; } = null;
 

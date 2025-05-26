@@ -17,6 +17,7 @@ using WebApplicationFlowSync.services.ExternalServices;
 using WebApplicationFlowSync.Classes;
 using WebApplicationFlowSync.services.NotificationService;
 using WebApplicationFlowSync.services.BackgroundServices;
+using WebApplicationFlowSync.services.KpiService;
 
 namespace WebApplicationFlowSync
 {
@@ -139,6 +140,8 @@ namespace WebApplicationFlowSync
             //BackgroundService (TaskReminderService)
             builder.Services.AddHostedService<TaskReminderService>();
 
+            //calculate Kpi Service
+            builder.Services.AddScoped<KpiService>();
 
             builder.Services.AddAuthorization();
 

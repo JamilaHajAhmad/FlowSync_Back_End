@@ -97,6 +97,5 @@ namespace WebApplicationFlowSync.Controllers
                 KPI = Math.Round(kpi, 2)
             });
         }
-
     }
 }

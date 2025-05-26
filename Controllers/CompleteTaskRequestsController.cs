@@ -10,6 +10,8 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Identity;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.services.NotificationService;
+using WebApplicationFlowSync.services.KpiService;
+using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.YearFrac;
 
 namespace WebApplicationFlowSync.Controllers
 {
@@ -20,12 +22,14 @@ namespace WebApplicationFlowSync.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
         private readonly INotificationService notificationService;
+        private readonly KpiService kpiService;
 
-        public CompleteTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager , INotificationService notificationService)
+        public CompleteTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager , INotificationService notificationService , KpiService kpiService)
         {
             this.context = context;
             this.userManager = userManager;
             this.notificationService = notificationService;
+            this.kpiService = kpiService;
         }
 
 
@@ -130,6 +134,9 @@ namespace WebApplicationFlowSync.Controllers
                 $"Your complete request for task #{request.FRNNumber} has been approved.",
                 NotificationType.Approval
             );
+
+            int year = DateTime.Now.Year;
+            await kpiService.SaveOrUpdateAnnualKPIAsync(task.UserID, year);
 
             return Ok("Complete task request approved and task status updated to Completed.");
 

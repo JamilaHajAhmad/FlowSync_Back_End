@@ -114,6 +114,7 @@ namespace WebApplicationFlowSync.Controllers
                         };
 
                         context.PendingMemberRequests.Add(request);
+                        await context.SaveChangesAsync();
 
                         await notificationService.SendNotificationAsync(
                             user.LeaderID,
