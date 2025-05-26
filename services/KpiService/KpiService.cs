@@ -7,7 +7,7 @@ using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.services.KpiService
 {
-    public class KpiService
+    public class KpiService : IKpiService
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
@@ -18,47 +18,51 @@ namespace WebApplicationFlowSync.services.KpiService
             this.userManager = userManager;
         }
 
-        public async Task SaveOrUpdateAnnualKPIAsync(string userId, int year)
+        public async Task<double> CalculateMemberAnnualKPIAsync(string memberId, int year)
         {
-            var user = await userManager.FindByIdAsync(userId);
-            if (user == null) return;
+            var start = new DateTime(year, 1, 1);
+            var end = new DateTime(year, 12, 31, 23, 59, 59);
+
+            var tasks = await context.Tasks
+                .Where(t => t.UserID == memberId && t.CreatedAt >= start && t.CreatedAt <= end)
+                .ToListAsync();
+
+            if (!tasks.Any())
+                return 0;
+
+            var completed = tasks.Count(t => t.Type == TaskStatus.Completed && !t.IsDelayed);
+            return (double)completed / tasks.Count * 100;
+        }
+
+        public async Task<double> CalculateLeaderAnnualKPIAsync(string leaderId, int year)
+        {
+            var leader = await userManager.Users
+                .Include(u => u.TeamMembers)
+                .FirstOrDefaultAsync(u => u.Id == leaderId && u.Role == Role.Leader);
+
+            if (leader == null || leader.TeamMembers == null)
+                return 0;
+
+            var memberIds = leader.TeamMembers
+                .Where(m => !m.IsRemoved)
+                .Select(m => m.Id)
+                .ToList();
+
+            if (!memberIds.Any())
+                return 0;
 
             var start = new DateTime(year, 1, 1);
             var end = new DateTime(year, 12, 31, 23, 59, 59);
 
             var tasks = await context.Tasks
-                .Where(t => t.UserID == userId && t.CreatedAt >= start && t.CreatedAt <= end)
+                .Where(t => memberIds.Contains(t.UserID) && t.CreatedAt >= start && t.CreatedAt <= end)
                 .ToListAsync();
 
+            if (!tasks.Any())
+                return 0;
+
             var completed = tasks.Count(t => t.Type == TaskStatus.Completed && !t.IsDelayed);
-            var total = tasks.Count;
-
-            double kpi = total == 0 ? 0 : (double)completed / total * 100;
-
-            var existing = await context.AnnualKPIs
-                .FirstOrDefaultAsync(k => k.UserId == userId && k.Year == year);
-
-            if (existing != null)
-            {
-                existing.KPI = Math.Round(kpi, 2);
-                existing.CompletedTasks = completed;
-                existing.TotalTasks = total;
-                existing.CalculatedAt = DateTime.Now;
-            }
-            else
-            {
-                context.AnnualKPIs.Add(new AnnualKPI
-                {
-                    UserId = userId,
-                    Year = year,
-                    KPI = Math.Round(kpi, 2),
-                    CompletedTasks = completed,
-                    TotalTasks = total,
-                    CalculatedAt = DateTime.Now
-                });
-            }
-
-            await context.SaveChangesAsync();
-            }
+            return (double)completed / tasks.Count * 100;
         }
+    }
 }

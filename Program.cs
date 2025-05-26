@@ -141,7 +141,7 @@ namespace WebApplicationFlowSync
             builder.Services.AddHostedService<TaskReminderService>();
 
             //calculate Kpi Service
-            builder.Services.AddScoped<KpiService>();
+            builder.Services.AddScoped<IKpiService , KpiService>();
 
             builder.Services.AddAuthorization();
 

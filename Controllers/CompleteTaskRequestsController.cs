@@ -22,9 +22,9 @@ namespace WebApplicationFlowSync.Controllers
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
         private readonly INotificationService notificationService;
-        private readonly KpiService kpiService;
+        private readonly IKpiService kpiService;
 
-        public CompleteTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager , INotificationService notificationService , KpiService kpiService)
+        public CompleteTaskRequestsController(ApplicationDbContext context, UserManager<AppUser> userManager , INotificationService notificationService , IKpiService kpiService)
         {
             this.context = context;
             this.userManager = userManager;
@@ -136,8 +136,8 @@ namespace WebApplicationFlowSync.Controllers
             );
 
             int year = DateTime.Now.Year;
-            await kpiService.SaveOrUpdateAnnualKPIAsync(task.UserID, year);
-
+            await kpiService.CalculateMemberAnnualKPIAsync(task.UserID, year);
+            await kpiService.CalculateLeaderAnnualKPIAsync(user.Id, year);
             return Ok("Complete task request approved and task status updated to Completed.");
 
         }
