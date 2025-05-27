@@ -197,6 +197,101 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(groupedByMonth);
         }
 
+        [HttpGet("leader/tasks-by-year")]
+        [Authorize(Roles = "Leader")]
+        public async Task<IActionResult> GetLeaderTasksByYear()
+        {
+            var leader = await userManager.GetUserAsync(User);
+            if (leader == null)
+                return Unauthorized("User not found");
+
+            var memberIds = await context.Users
+                .Where(m => m.LeaderID == leader.Id)
+                .Select(m => m.Id)
+                .ToListAsync();
+
+            var tasks = await context.Tasks
+                .Where(t => memberIds.Contains(t.UserID))
+                .ToListAsync();
+
+            var groupedByYear = tasks
+                .GroupBy(t => t.CreatedAt.Year)
+                .Select(g => new
+                {
+                    Year = g.Key,
+                    TaskCount = g.Count()
+                })
+                .OrderBy(x => x.Year)
+                .ToList();
+
+            return Ok(groupedByYear);
+        }
+
+        [HttpGet("member/tasks-by-year")]
+        [Authorize(Roles = "Member")]
+        public async Task<IActionResult> GetMemberYearlyTaskCounts()
+        {
+            var member = await userManager.GetUserAsync(User);
+            if (member == null)
+                return Unauthorized("User not found");
+
+            var yearlyCounts = await context.Tasks
+                .Where(t => t.UserID == member.Id)
+                .GroupBy(t => t.CreatedAt.Year)
+                .Select(g => new
+                {
+                    Year = g.Key,
+                    TaskCount = g.Count()
+                })
+                .OrderBy(x => x.Year)
+                .ToListAsync();
+
+            return Ok(yearlyCounts);
+        }
+
+        [HttpGet("leader/yearly-kpi")]
+        [Authorize(Roles = "Leader")]
+        public async Task<IActionResult> GetLeaderYearlyKPI()
+        {
+            var leader = await userManager.GetUserAsync(User);
+            if (leader == null)
+                return Unauthorized("User not found");
+
+            var kpis = await context.AnnualKPIs
+                .Where(k => k.UserId == leader.Id)
+                .OrderBy(k => k.Year)
+                .Select(k => new
+                {
+                    Year = k.Year,
+                    KPI = k.KPI,
+                })
+                .ToListAsync();
+
+            return Ok(kpis);
+        }
+
+        [HttpGet("member/yearly-kpi")]
+        [Authorize(Roles="Member")]
+        public async Task<IActionResult> GetMemberYearlyKPI()
+        {
+            var member = await userManager.GetUserAsync(User);
+            if (member == null)
+                return Unauthorized("User not found");
+
+            var kpis = await context.AnnualKPIs
+                .Where(k => k.UserId == member.Id)
+                .OrderBy(k => k.Year)
+                .Select(k => new
+                {
+                    Year = k.Year,
+                    KPI = k.KPI,
+                })
+                .ToListAsync();
+
+            return Ok(kpis);
+        }
+
+
 
         [HttpPost("save-report/{reportType}")]
         public async Task<IActionResult> SaveReport(string reportType, [FromForm] SaveReportRequestDto dto, IFormFile? file)
@@ -349,6 +444,7 @@ namespace WebApplicationFlowSync.Controllers
                 }
             });
         }
+
 
         [HttpGet("all-reports")]
         public async Task<IActionResult> GetAllReports()

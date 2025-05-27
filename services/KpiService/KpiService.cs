@@ -39,6 +39,32 @@ namespace WebApplicationFlowSync.services.KpiService
 
             double kpi = (double)completed / tasks.Count * 100;
 
+            //Store or Update KPI in DB
+            var existing = await context.AnnualKPIs
+                .FirstOrDefaultAsync(k => k.UserId == memberId && k.Year == year);
+
+            if (existing != null)
+            {
+                existing.KPI = kpi;
+                existing.CompletedTasks = completed;
+                existing.TotalTasks = total;
+                existing.CalculatedAt = DateTime.Now;
+            }
+            else
+            {
+                context.AnnualKPIs.Add(new AnnualKPI
+                {
+                    UserId = memberId,
+                    Year = year,
+                    KPI = kpi,
+                    CompletedTasks = completed,
+                    TotalTasks = total,
+                    CalculatedAt = DateTime.Now
+                });
+            }
+
+            await context.SaveChangesAsync();
+
             return new KpiResultDto
             {
                 KPI = kpi,
@@ -85,6 +111,33 @@ namespace WebApplicationFlowSync.services.KpiService
 
             
             double kpi = (double)completed / tasks.Count * 100;
+
+            //Store or Update KPI in DB
+            var existing = await context.AnnualKPIs
+                .FirstOrDefaultAsync(k => k.UserId == leaderId && k.Year == year);
+
+            if (existing != null)
+            {
+                existing.KPI = kpi;
+                existing.CompletedTasks = completed;
+                existing.TotalTasks = total;
+                existing.CalculatedAt = DateTime.Now;
+            }
+            else
+            {
+                context.AnnualKPIs.Add(new AnnualKPI
+                {
+                    UserId = leaderId,
+                    Year = year,
+                    KPI = kpi,
+                    CompletedTasks = completed,
+                    TotalTasks = total,
+                    CalculatedAt = DateTime.Now
+                });
+            }
+
+            await context.SaveChangesAsync();
+
 
             return new KpiResultDto
             {
