@@ -91,7 +91,7 @@ namespace WebApplicationFlowSync.Controllers
                       NotificationType.Info,
                       member.Email,
                       "View Task",
-                      "http://localhost:3002/member-tasks"
+                      "http://localhost:3001/member-tasks"
                 );
 
                 return Ok(new

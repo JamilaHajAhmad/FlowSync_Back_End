@@ -1,8 +1,10 @@
-﻿namespace WebApplicationFlowSync.services.KpiService
+﻿using WebApplicationFlowSync.DTOs;
+
+namespace WebApplicationFlowSync.services.KpiService
 {
     public interface IKpiService
     {
-        Task<double> CalculateMemberAnnualKPIAsync(string memberId, int year);
-        Task<double> CalculateLeaderAnnualKPIAsync(string leaderId, int year);
+        Task<KpiResultDto> CalculateMemberAnnualKPIAsync(string memberId, int year);
+        Task<KpiResultDto> CalculateLeaderAnnualKPIAsync(string leaderId, int year);
     }
 }

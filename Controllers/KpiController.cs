@@ -32,12 +32,9 @@ namespace WebApplicationFlowSync.Controllers
                 return NotFound("Member not found.");
 
             int year = DateTime.UtcNow.Year;
-            var kpi = await kpiService.CalculateMemberAnnualKPIAsync(member.Id, year);
+            var kpiResult = await kpiService.CalculateMemberAnnualKPIAsync(member.Id, year);
 
-            return Ok(new
-            {
-                KPI = Math.Round(kpi, 2)
-            });
+            return Ok(kpiResult);
         }
 
         [HttpGet("leader/annual-kpi")]
@@ -49,12 +46,9 @@ namespace WebApplicationFlowSync.Controllers
                 return NotFound("Leader not found.");
 
             int year = DateTime.UtcNow.Year;
-            var kpi = await kpiService.CalculateLeaderAnnualKPIAsync(leader.Id, year);
+            var kpiResult = await kpiService.CalculateLeaderAnnualKPIAsync(leader.Id, year);
 
-            return Ok(new
-            {
-                KPI = Math.Round(kpi, 2)
-            });
+            return Ok(kpiResult);
         }
     }
 }
