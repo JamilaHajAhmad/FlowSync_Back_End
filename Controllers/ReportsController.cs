@@ -131,6 +131,72 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(data);
         }
 
+        // Dashboard Repots
+        [HttpGet("leader/monthly-task-status-counts")]
+        [Authorize(Roles ="Leader")]
+        public async Task<IActionResult> GetLeaderMonthlyStatusCounts()
+        {
+            var leader = await userManager.GetUserAsync(User);
+            if (leader == null)
+                return Unauthorized("User not found");
+             
+            var memberIds = await context.Users
+                .Where(m => m.LeaderID == leader.Id)
+                .Select(m => m.Id)
+                .ToListAsync();
+
+            var tasks = await context.Tasks
+                .Where(t => memberIds.Contains(t.UserID))
+                .ToListAsync();
+
+            var groupedByMonth = tasks
+                .GroupBy(t => t.CreatedAt.ToString("yyyy-MM"))
+                .Select(g => new MonthlyTaskStatusCountDto
+                {
+                    Month = g.Key,
+                    StatusCounts = g
+                    .GroupBy(t => t.Type.ToString())
+                    .ToDictionary(
+                        statusGroup => statusGroup.Key,
+                        statusGroup => statusGroup.Count()
+                        )
+                })
+                .OrderBy(x => x.Month)
+                .ToList();
+
+            return Ok(groupedByMonth);
+        }
+
+        [HttpGet("member/monthly-task-status-counts")]
+        [Authorize(Roles = "Member")]
+        public async Task<IActionResult> GetMemberMonthlyStatusCounts()
+        {
+            var member = await userManager.GetUserAsync(User);
+            if (member == null)
+                return Unauthorized("User not found");
+
+            var tasks = await context.Tasks
+                .Where(t => t.UserID == member.Id)
+                .ToListAsync();
+
+            var groupedByMonth = tasks
+                .GroupBy(t => t.CreatedAt.ToString("yyyy-MM"))
+                .Select(g => new MonthlyTaskStatusCountDto
+                {
+                    Month = g.Key,
+                    StatusCounts = g
+                    .GroupBy(t => t.Type.ToString())
+                    .ToDictionary(
+                        statusGroup => statusGroup.Key,
+                        statusGroup => statusGroup.Count()
+                        )
+                })
+                .OrderBy(x => x.Month)
+                .ToList();
+
+            return Ok(groupedByMonth);
+        }
+
 
         [HttpPost("save-report/{reportType}")]
         public async Task<IActionResult> SaveReport(string reportType, [FromForm] SaveReportRequestDto dto, IFormFile? file)
