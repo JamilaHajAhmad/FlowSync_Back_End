@@ -6,6 +6,7 @@ namespace WebApplicationFlowSync.services.EmailService
      {
          Task sendEmailAsync(EmailDto request);
         Task SendConfirmationEmail(string to, string subject, string link);
+        Task SendSubscriptionConfirmationEmailAsync(string email);
     }
     
 }

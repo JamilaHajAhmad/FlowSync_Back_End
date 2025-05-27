@@ -90,6 +90,11 @@ namespace WebApplicationFlowSync.Data
            .Property(f => f.FRNNumber)
            .HasColumnName("Freeze_FRNNumber");
 
+            modelBuilder.Entity<Subscriber>()
+            .HasIndex(s => s.Email)
+            .IsUnique();
+
+
         }
 
         public DbSet<AppUser> Users { get; set; }
@@ -101,6 +106,7 @@ namespace WebApplicationFlowSync.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<UserSession> UserSessions { get; set; }
         public DbSet<AnnualKPI> AnnualKPIs { get; set; }
+        public DbSet<Subscriber> Subscribers { get; set; }
 
     }
 }

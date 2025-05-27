@@ -218,12 +218,32 @@ namespace WebApplicationFlowSync.services.EmailService
             await sendEmailAsync(emailDto);
         }
 
-        /// <summary>
-        /// check if access token is expired or not
-        /// </summary>
-        /// <param name="accessToken"></param>
-        /// <returns></returns>
-        private bool IsAccessAccountTokenNeedRefresh(string? accessToken)
+        public async Task SendSubscriptionConfirmationEmailAsync(string email)
+        {
+            string htmlBody = EmailTemplateBuilder.BuildTemplate(
+                    "Subscription Confirmation",
+                    "Thank you for subscribing to FlowSync updates!<br><br>We'll keep you informed with the latest news and features.",
+                    null, // لا نريد زر، فقط نص
+                    null
+                );
+
+            var emailDto = new EmailDto
+            {
+                To = email,
+                Subject = "Subscription Confirmation - FlowSync Updates",
+                Body = htmlBody
+            };
+
+            await sendEmailAsync(emailDto);
+        }
+
+
+            /// <summary>
+            /// check if access token is expired or not
+            /// </summary>
+            /// <param name="accessToken"></param>
+            /// <returns></returns>
+            private bool IsAccessAccountTokenNeedRefresh(string? accessToken)
         {
 
             if (string.IsNullOrWhiteSpace(accessToken))
