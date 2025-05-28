@@ -42,24 +42,6 @@ namespace WebApplicationFlowSync.Data
                 .OnDelete(DeleteBehavior.Cascade); // أو أي سلوك مناسب
 
 
-            //علاقة التقرير مع المهام عبر جدول الربط(بدون Cascade)
-            //modelBuilder.Entity<TaskReport>()
-            //    .HasKey(tr => new { tr.ReportID, tr.FRNNumber });
-
-
-
-            //modelBuilder.Entity<TaskReport>()
-            //            .HasOne(tr => tr.Report)
-            //            .WithMany(r => r.TasksReports)
-            //            .HasForeignKey(tr => tr.ReportID)
-            //            .OnDelete(DeleteBehavior.NoAction);
-
-            //modelBuilder.Entity<TaskReport>()
-            //    .HasOne(tr => tr.Task)
-            //    .WithMany(t => t.TasksReports)
-            //    .HasForeignKey(tr => tr.FRNNumber)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
             modelBuilder.Entity<PendingMemberRequest>()
       .HasOne(p => p.Member)
       .WithMany(u => u.SentJoinRequests)
@@ -107,6 +89,7 @@ namespace WebApplicationFlowSync.Data
         public DbSet<UserSession> UserSessions { get; set; }
         public DbSet<AnnualKPI> AnnualKPIs { get; set; }
         public DbSet<Subscriber> Subscribers { get; set; }
+        public DbSet<CalendarEvent> CalendarEvents { get; set; }
 
     }
 }

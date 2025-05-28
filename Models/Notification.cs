@@ -36,6 +36,7 @@ namespace WebApplicationFlowSync.Models
         Info,
         Warning,
         Error,
-        Security
+        Security,
+        Reminder
     }
 }

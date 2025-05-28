@@ -150,10 +150,11 @@ namespace WebApplicationFlowSync.Controllers
                 .ToListAsync();
 
             var groupedByMonth = tasks
-                .GroupBy(t => t.CreatedAt.ToString("yyyy-MM"))
-                .Select(g => new MonthlyTaskStatusCountDto
+                .GroupBy(t => new { t.CreatedAt.Year , t.CreatedAt.Month})
+                .Select(g => new 
                 {
-                    Month = g.Key,
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
                     StatusCounts = g
                     .GroupBy(t => t.Type.ToString())
                     .ToDictionary(
@@ -161,7 +162,7 @@ namespace WebApplicationFlowSync.Controllers
                         statusGroup => statusGroup.Count()
                         )
                 })
-                .OrderBy(x => x.Month)
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
                 .ToList();
 
             return Ok(groupedByMonth);
@@ -180,10 +181,11 @@ namespace WebApplicationFlowSync.Controllers
                 .ToListAsync();
 
             var groupedByMonth = tasks
-                .GroupBy(t => t.CreatedAt.ToString("yyyy-MM"))
-                .Select(g => new MonthlyTaskStatusCountDto
+                .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month } )
+                .Select(g => new
                 {
-                    Month = g.Key,
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
                     StatusCounts = g
                     .GroupBy(t => t.Type.ToString())
                     .ToDictionary(
@@ -191,7 +193,7 @@ namespace WebApplicationFlowSync.Controllers
                         statusGroup => statusGroup.Count()
                         )
                 })
-                .OrderBy(x => x.Month)
+                .OrderBy(x => x.Year).ThenBy(x => x.Month)
                 .ToList();
 
             return Ok(groupedByMonth);

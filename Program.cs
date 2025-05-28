@@ -140,6 +140,9 @@ namespace WebApplicationFlowSync
             //BackgroundService (TaskReminderService)
             builder.Services.AddHostedService<TaskReminderService>();
 
+            //BackgroundService (CalenderReminderService)
+            builder.Services.AddHostedService<CalendarReminderService>();
+
             //calculate Kpi Service
             builder.Services.AddScoped<IKpiService , KpiService>();
 

@@ -1,6 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using WebApplicationFlowSync.Data;
+﻿using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.services.EmailService;
