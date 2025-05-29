@@ -40,7 +40,7 @@ namespace WebApplicationFlowSync.Controllers
             var newEvent = new CalendarEvent
             {
                 Title = dto.Title,
-                EventDate = dto.EventDate,
+                EventDate = dto.EventDate.ToLocalTime(),
                 UserID = user.Id,
                 ReminderSent1Day = false,
                 ReminderSent1Hour = false
@@ -66,6 +66,7 @@ namespace WebApplicationFlowSync.Controllers
                 return NotFound("Event not found.");
 
             calnderEvent.Title = dto.Title;
+            calnderEvent.EventDate = dto.EventDate.ToLocalTime();
 
             await context.SaveChangesAsync();
 
@@ -136,8 +137,7 @@ namespace WebApplicationFlowSync.Controllers
                 title = $"Deadline: {t.Title} #{t.FRNNumber}",
                 start = t.Deadline,
                 end = t.Deadline,
-                color = t.Type == TaskStatus.Completed ? "#28a745" :
-                        t.Type == TaskStatus.Delayed ? "#dc3545" :
+                color =t.Type == TaskStatus.Delayed ? "#dc3545" :
                         "#fd7e14"
             });
 
