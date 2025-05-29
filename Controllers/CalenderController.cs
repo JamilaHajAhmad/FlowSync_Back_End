@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
+using WebApplicationFlowSync.services.NotificationService;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
@@ -17,11 +18,13 @@ namespace WebApplicationFlowSync.Controllers
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
+        private readonly INotificationService notificationService;
 
-        public CalenderController(ApplicationDbContext context, UserManager<AppUser> userManager)
+        public CalenderController(ApplicationDbContext context, UserManager<AppUser> userManager, INotificationService notificationService)
         {
             this.context = context;
             this.userManager = userManager;
+            this.notificationService = notificationService;
         }
 
         [HttpPost]
@@ -135,12 +138,36 @@ namespace WebApplicationFlowSync.Controllers
                 end = t.Deadline,
                 color = t.Type == TaskStatus.Completed ? "#28a745" :
                         t.Type == TaskStatus.Delayed ? "#dc3545" :
-                        "#007bff"
+                        "#fd7e14"
             });
 
             return Ok(calenserEvents);
                 
         }
+
+
+        //[HttpPost("send-reminder/{eventId}")]
+        //public async Task<IActionResult> SendTestReminder(int eventId)
+        //{
+        //    var calendarEvent = await context.CalendarEvents
+        //        .Include(e => e.User)
+        //        .FirstOrDefaultAsync(e => e.Id == eventId);
+
+        //    if (calendarEvent == null || calendarEvent.User == null)
+        //        return NotFound("Event or user not found.");
+
+        //    var user = calendarEvent.User;
+        //    string message = $"Test Reminder: Event '{calendarEvent.Title}' is scheduled at {calendarEvent.EventDate:HH:mm dd/MM/yyyy}.";
+
+        //    await notificationService.SendNotificationAsync(
+        //        user.Id,
+        //        message,
+        //        NotificationType.Reminder,
+        //        user.Email
+        //    );
+
+        //    return Ok("✅ Test reminder sent successfully.");
+        //}
 
     }
 }
