@@ -48,7 +48,9 @@ namespace WebApplicationFlowSync.Models
     public ICollection<UserSession>? Sessions { get; set; }
 
     public ICollection<AnnualKPI>? AnnualKPIs { get; set; }
-
+        public ICollection<CalendarEvent> CalendarEvents { get; set; }
+        public ICollection<ChatMessage> SentMessages { get; set; }
+    public ICollection<ChatMessage> ReceivedMessages { get; set; }
 
         public DateTime? DateOfBirth { get; set; } = null;
 

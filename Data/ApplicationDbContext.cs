@@ -76,6 +76,17 @@ namespace WebApplicationFlowSync.Data
             .HasIndex(s => s.Email)
             .IsUnique();
 
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(m => m.Sender)
+                .WithMany(u => u.SentMessages)
+                .HasForeignKey(m => m.SenderId)
+                .OnDelete(DeleteBehavior.Restrict); // مهم لتجنب الحذف التبادلي
+
+            modelBuilder.Entity<ChatMessage>()
+                .HasOne(m => m.Receiver)
+                .WithMany(u => u.ReceivedMessages)
+                .HasForeignKey(m => m.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
 
         }
 
@@ -90,6 +101,7 @@ namespace WebApplicationFlowSync.Data
         public DbSet<AnnualKPI> AnnualKPIs { get; set; }
         public DbSet<Subscriber> Subscribers { get; set; }
         public DbSet<CalendarEvent> CalendarEvents { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
     }
 }
