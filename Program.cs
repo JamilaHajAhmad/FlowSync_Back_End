@@ -146,23 +146,23 @@ namespace WebApplicationFlowSync
             // ✅ هذا مهم جدًا للسماح باستخدام [Authorize(Roles = "...")]
             RoleClaimType = ClaimTypes.Role
         };
-        options.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                // استخراج التوكن من الكويري سترينغ إذا لم يكن موجود في الهيدر (مفيد لـ SignalR)
-                var accessToken = context.Request.Query["access_token"];
+        //options.Events = new JwtBearerEvents
+        //{
+        //    OnMessageReceived = context =>
+        //    {
+        //        // استخراج التوكن من الكويري سترينغ إذا لم يكن موجود في الهيدر (مفيد لـ SignalR)
+        //        var accessToken = context.Request.Query["access_token"];
 
-                // تأكد أن الطلب خاص بـ SignalR
-                var path = context.HttpContext.Request.Path;
-                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
-                {
-                    context.Token = accessToken;
-                }
+        //        // تأكد أن الطلب خاص بـ SignalR
+        //        var path = context.HttpContext.Request.Path;
+        //        if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+        //        {
+        //            context.Token = accessToken;
+        //        }
 
-                return Task.CompletedTask;
-            }
-        };
+        //        return Task.CompletedTask;
+        //    }
+        //};
     });
 
             //BackgroundService (TaskReminderService)
