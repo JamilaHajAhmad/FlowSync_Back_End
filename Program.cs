@@ -208,10 +208,17 @@ namespace WebApplicationFlowSync
                 }).GetAwaiter().GetResult();
             }
 
+            //WebSocket
+            var webSocketOptions = new WebSocketOptions
+            {
+                KeepAliveInterval = TimeSpan.FromSeconds(120)
+            };
+            
+
             app.MapHub<ChatHub>("/chatHub");
 
             // edit
-            app.UseWebSockets();
+            app.UseWebSockets(webSocketOptions);
 
             app.UseCors("AllowAll");
 
