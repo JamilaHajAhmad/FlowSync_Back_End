@@ -80,7 +80,11 @@ namespace WebApplicationFlowSync
                    options.AddPolicy("AllowAll",
                    builder =>
                    {
-                       builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+                       //builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+                       builder.WithOrigins("http://localhost:3001") // ← ضع عنوان الواجهة
+                              .AllowAnyMethod()
+                              .AllowAnyHeader()
+                              .AllowCredentials(); // ← مطلوب مع SignalR
 
 
                    });

@@ -76,7 +76,7 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized();
 
             var users = await context.Users
-                .Where(u => u.Id != currentUser.Id)
+                .Where(u => u.Id != currentUser.Id && u.EmailConfirmed && !u.IsRemoved)
                 .ToListAsync();
 
             var chatUsers = new List<ChatUserDto>();
@@ -84,7 +84,7 @@ namespace WebApplicationFlowSync.Controllers
             foreach (var u in users)
             {
                 var lastMessage = await context.ChatMessages
-                    .Where(m =>
+                    .Where(m => 
                           (m.SenderId == currentUser.Id && m.ReceiverId == u.Id) ||
                           (m.SenderId == u.Id && m.ReceiverId == currentUser.Id))
                     .OrderByDescending(m => m.SentAt)
