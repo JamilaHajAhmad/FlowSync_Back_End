@@ -210,6 +210,9 @@ namespace WebApplicationFlowSync
 
             app.MapHub<ChatHub>("/chatHub");
 
+            // edit
+            app.UseWebSockets();
+
             app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();
