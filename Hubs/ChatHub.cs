@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR; // تفعيل الاتصال اللحظي (real-time)
-using System.Threading.Tasks;
-
+using WebApplicationFlowSync.services;
 namespace WebApplicationFlowSync.Hubs
 {
     public class ChatHub : Hub
@@ -23,8 +22,9 @@ namespace WebApplicationFlowSync.Hubs
             var userId = Context.UserIdentifier;
             logger.LogInformation("User connected: {UserId}, ConnectionId: {ConnectionId}", userId, Context.ConnectionId);
 
-            if (!string.IsNullOrEmpty(userId) )
+            if (!string.IsNullOrEmpty(userId))
             {
+                ConnectedUsersTracker.AddConnection(userId, Context.ConnectionId);
                 await Groups.AddToGroupAsync(Context.ConnectionId, userId);
                 logger.LogInformation("User {UserId} added to group.", userId);
             }
@@ -39,6 +39,7 @@ namespace WebApplicationFlowSync.Hubs
 
             if (!string.IsNullOrEmpty(userId))
             {
+                ConnectedUsersTracker.RemoveConnection(userId, Context.ConnectionId);
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, userId);
                 logger.LogInformation("User {UserId} removed from group.", userId);
             }

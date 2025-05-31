@@ -20,6 +20,8 @@ using WebApplicationFlowSync.services.BackgroundServices;
 using WebApplicationFlowSync.services.KpiService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using WebApplicationFlowSync.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using WebApplicationFlowSync.Providers;
 
 namespace WebApplicationFlowSync
 {
@@ -104,6 +106,8 @@ namespace WebApplicationFlowSync
             //builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddSignalR();
+
+            builder.Services.AddSingleton<IUserIdProvider, NameIdentifierUserIdProvider>();
 
             //Add Auth Service (generate token)
             builder.Services.AddScoped<AuthServices>();

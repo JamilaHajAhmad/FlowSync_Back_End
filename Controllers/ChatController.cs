@@ -8,6 +8,7 @@ using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Hubs;
 using WebApplicationFlowSync.Models;
+using WebApplicationFlowSync.services;
 namespace WebApplicationFlowSync.Controllers
 {
     [Route("api/[controller]")]
@@ -59,6 +60,53 @@ namespace WebApplicationFlowSync.Controllers
             };
 
             return Ok(messageDto);
+        }
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetChatUsers()
+        {
+            var currentUser = await userManager.GetUserAsync(User);
+            if (currentUser == null)
+                return Unauthorized();
+
+            var users = await context.Users
+                .Where(u => u.Id != currentUser.Id)
+                .ToListAsync();
+
+            var chatUsers = new List<ChatUserDto>();
+
+            foreach (var u in users)
+            {
+                var lastMessage = await context.ChatMessages
+                    .Where(m =>
+                          (m.SenderId == currentUser.Id && m.ReceiverId == u.Id) ||
+                          (m.SenderId == u.Id && m.ReceiverId == currentUser.Id))
+                    .OrderByDescending(m => m.SentAt)
+                    .FirstOrDefaultAsync();
+
+                chatUsers.Add(new ChatUserDto
+                {
+                    Id = u.Id,
+                    FullName = u.FirstName + " " + u.LastName,
+                    Email = u.Email,
+                    PictureURL = u.PictureURL,
+                    IsOnline = ConnectedUsersTracker.IsOnline(u.Id),
+                    LastMessageSentAt = lastMessage?.SentAt,
+                    LastMessage = lastMessage != null
+                    ? new
+                    {
+                        lastMessage.Message,
+                        lastMessage.SentAt,
+                        IsMine = lastMessage.SenderId == currentUser.Id
+                    }
+                    : null
+                });
+            }
+                var orderedUsers = chatUsers
+                   .OrderByDescending(u => u.LastMessageSentAt ?? DateTime.MinValue) // لو ما فيه رسائل، نجعلها الأقدم
+                   .ToList();
+
+              return Ok(orderedUsers);
         }
 
         //جلب المحادثة بين الطرفين
