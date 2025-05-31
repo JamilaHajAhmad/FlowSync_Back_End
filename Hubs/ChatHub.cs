@@ -32,6 +32,12 @@ namespace WebApplicationFlowSync.Hubs
             await base.OnConnectedAsync();
         }
 
+        public async Task Typing(string receiverId, bool isTyping)
+        {
+            var senderId = Context.UserIdentifier;
+            await Clients.User(receiverId).SendAsync("UserTyping", senderId, isTyping);
+        }
+
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             var userId = Context.UserIdentifier;

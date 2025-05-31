@@ -47,7 +47,13 @@ namespace WebApplicationFlowSync.Controllers
             await context.SaveChangesAsync();
 
             // إشعار لحظي للطرف الآخر
-            await chatHub.Clients.User(dto.ReceiverId).SendAsync("ReceiveMessage", sender.Id, dto.Message);
+            //await chatHub.Clients.User(dto.ReceiverId).SendAsync("ReceiveMessage", sender.Id, dto.Message);
+            await chatHub.Clients.User(dto.ReceiverId).SendAsync("ReceiveMessage",
+                            sender.Id,
+                            message.Message,
+                            message.Id,
+                            message.SentAt);
+
 
             // تحويل إلى DTO
             var messageDto = new ChatMessageDto
