@@ -133,7 +133,8 @@ namespace WebApplicationFlowSync.Controllers
                 SentAt = m.SentAt,
                 SenderId = m.SenderId,
                 ReceiverId = m.ReceiverId,
-                IsRead = m.IsRead
+                IsRead = m.IsRead,
+                IsMine = m.SenderId == currentUser.Id
             }));
         }
 
