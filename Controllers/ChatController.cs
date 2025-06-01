@@ -76,7 +76,7 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized();
 
             var users = await context.Users
-                .Where(u => u.Id != currentUser.Id && u.EmailConfirmed && !u.IsRemoved)
+                .Where(u => u.EmailConfirmed && !u.IsRemoved)
                 .ToListAsync();
 
             var chatUsers = new List<ChatUserDto>();

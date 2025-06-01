@@ -54,7 +54,7 @@ namespace WebApplicationFlowSync.Controllers
 
             await notificationService.SendNotificationAsync(
                 member.Id,
-                $"Your status change has been approved to {request.NewStatus}.",
+                $"Your status change has been approved to {request.NewStatus.ToString().Replace("_" , " ")}.",
                 NotificationType.Approval
             );
 

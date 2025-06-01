@@ -87,7 +87,8 @@ namespace WebApplicationFlowSync.Controllers
 
                 await notificationService.SendNotificationAsync(
                      member.Id,
-                      $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}).",
+                      $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber})by your leader. Please check your task list.",
+
                       NotificationType.Info,
                       member.Email,
                       "View Task",
@@ -132,6 +133,7 @@ namespace WebApplicationFlowSync.Controllers
                     CaseType = t.CaseType,
                     Priority = t.Priority,
                     Status = t.Type,
+                    IsDelayed = t.IsDelayed,
                     OpenDate = t.CreatedAt,
                     Deadline = t.Deadline,
                     CompletedAt = t.CompletedAt,
@@ -185,6 +187,7 @@ namespace WebApplicationFlowSync.Controllers
                     CaseType = t.CaseType,
                     Priority = t.Priority,
                     Type = t.Type,
+                    IsDelayed = t.IsDelayed,
                     CreatedAt = t.CreatedAt,
                     Deadline = t.Deadline,
                     CompletedAt = t.CompletedAt,
@@ -255,8 +258,17 @@ namespace WebApplicationFlowSync.Controllers
 
             if (toUser == null) return BadRequest("Invalid member selected.");
 
+
             task.UserID = toUser.Id;
             await context.SaveChangesAsync();
+
+            await notificationService.SendNotificationAsync(toUser.Id,
+                $"You have been assigned a new task {task.Title} (FRN: {task.FRNNumber}) by your leader. Please check your task list.",
+                NotificationType.Info,
+                toUser.Email,
+                "View Task",
+                "http://localhost:3001/member-tasks"
+                );
 
             return Ok("Task reassigned successfully.");
         }

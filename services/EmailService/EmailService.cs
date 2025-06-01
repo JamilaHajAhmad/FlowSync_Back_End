@@ -48,7 +48,7 @@ namespace WebApplicationFlowSync.services.EmailService
             string htmlBody = EmailTemplateBuilder.BuildTemplate(
                     "Subscription Confirmation",
                     "Thank you for subscribing to FlowSync updates!<br><br>We'll keep you informed with the latest news and features.",
-                    null, // لا نريد زر، فقط نص
+                    null, 
                     null
                 );
 
