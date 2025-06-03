@@ -68,7 +68,7 @@ namespace WebApplicationFlowSync.Controllers
         }
 
         [HttpPost("send-to-team")]
-        [Authorize("Leader")]
+        [Authorize(Roles ="Leader")]
         public async Task<IActionResult> SendMessageToAllMembers([FromBody] SendGroupMessageDto dto)
         {
             var sender = await userManager.GetUserAsync(User);

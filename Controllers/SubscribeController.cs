@@ -28,7 +28,7 @@ namespace WebApplicationFlowSync.Controllers
 
             var existing = context.Subscribers.FirstOrDefault(s => s.Email == model.Email);
             if (existing != null)
-                return Ok ("You are already subscribed.");
+                return Ok("You are already subscribed.");
 
             var subscriber = new Subscriber
             {
