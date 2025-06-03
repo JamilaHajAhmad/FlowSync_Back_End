@@ -47,7 +47,6 @@ namespace WebApplicationFlowSync.Controllers
             await context.SaveChangesAsync();
 
             // إشعار لحظي للطرف الآخر
-            //await chatHub.Clients.User(dto.ReceiverId).SendAsync("ReceiveMessage", sender.Id, dto.Message);
             await chatHub.Clients.User(dto.ReceiverId).SendAsync("ReceiveMessage",
                             sender.Id,
                             message.Message,
@@ -67,6 +66,50 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok(messageDto);
         }
+
+        [HttpPost("send-to-team")]
+        [Authorize("Leader")]
+        public async Task<IActionResult> SendMessageToAllMembers([FromBody] SendGroupMessageDto dto)
+        {
+            var sender = await userManager.GetUserAsync(User);
+
+            if (sender == null || sender.Role != Role.Leader)
+                return Unauthorized("Only leaders can send group messages.");
+
+            var teamMembers = await context.Users
+                .Where(u => u.LeaderID == sender.Id && !u.IsRemoved && u.EmailConfirmed)
+                .ToListAsync();
+
+            if (teamMembers.Count == 0)
+                return NotFound("No team members found.");
+
+            var messages = new List<Models.ChatMessage>();
+
+            foreach(var member in teamMembers)
+            {
+                var message = new Models.ChatMessage
+                {
+                    SenderId = sender.Id,
+                    ReceiverId = member.Id,
+                    Message = dto.Message
+                };
+
+                messages.Add(message);
+
+                await chatHub.Clients.User(member.Id).SendAsync("ReceiveMessage",
+                    sender.Id,
+                    message.Message,
+                    message.Id,
+                    message.SentAt);
+            }
+
+            context.ChatMessages.AddRange(messages); // لتقليل الضغط والتكرار
+            await context.SaveChangesAsync();
+
+            return Ok("Messages sent to all team members.");
+
+        }
+
 
         [HttpGet("users")]
         public async Task<IActionResult> GetChatUsers()

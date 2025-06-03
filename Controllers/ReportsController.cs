@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Cms;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
@@ -314,7 +315,8 @@ namespace WebApplicationFlowSync.Controllers
 
             object data;
             string filtersApplied;
-
+            DateTime? fromDate = null;
+            DateTime? toDate = null;
             switch (reportType.ToLower())
             {
                 case "task-distribution-by-member":
@@ -328,6 +330,7 @@ namespace WebApplicationFlowSync.Controllers
                         })
                         .ToListAsync();
                     filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "Member Name and Task Status" });
+                    (fromDate, toDate) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
                     break;
 
                 case "tasks-over-months":
@@ -343,6 +346,7 @@ namespace WebApplicationFlowSync.Controllers
                         .OrderBy(x => x.Year).ThenBy(x => x.Month)
                         .ToListAsync();
                     filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "CreatedAt.Year + CreatedAt.Month" });
+                    (fromDate, toDate) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
                     break;
 
                 case "task-status-summary":
@@ -355,6 +359,12 @@ namespace WebApplicationFlowSync.Controllers
                         })
                         .ToListAsync();
                     filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "Task Type" });
+                    var taskDates3 = await context.Tasks.Select(t => t.CreatedAt).ToListAsync();
+                    if (taskDates3.Any())
+                    {
+                        fromDate = taskDates3.Min();
+                        toDate = taskDates3.Max();
+                    }
                     break;
 
                 case "calendar-activity":
@@ -368,6 +378,7 @@ namespace WebApplicationFlowSync.Controllers
                         .OrderBy(x => x.Date)
                         .ToListAsync();
                     filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "CreatedAt.Date" });
+                    (fromDate, toDate) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
                     break;
 
                 case "tasks-by-case-source":
@@ -381,6 +392,7 @@ namespace WebApplicationFlowSync.Controllers
                         })
                         .ToListAsync();
                     filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "CaseSource + Type" });
+                    (fromDate, toDate) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
                     break;
 
                 case "requests-stream-by-type":
@@ -396,6 +408,7 @@ namespace WebApplicationFlowSync.Controllers
                         .OrderBy(x => x.Year).ThenBy(x => x.Month)
                         .ToListAsync();
                     filtersApplied = JsonConvert.SerializeObject(new { GroupBy = "RequestedAt.Year + Month + Request Type" });
+                    (fromDate, toDate) = await GetDateRangeAsync(context.PendingMemberRequests.Select(r => r.RequestedAt));
                     break;
 
                 default:
@@ -423,7 +436,9 @@ namespace WebApplicationFlowSync.Controllers
                 Description = dto.Description ?? string.Empty,
                 FileData = fileData,
                 FileName = file.FileName,
-                FileContentType = file.ContentType
+                FileContentType = file.ContentType,
+                FromDate = fromDate,
+                ToDate = toDate
             };
 
             context.Reports.Add(report);
@@ -467,6 +482,13 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok(reports);
         }
+
+        private async Task<(DateTime? From, DateTime? To)> GetDateRangeAsync(IQueryable<DateTime> datesQuery)
+        {
+            var dates = await datesQuery.ToListAsync();
+            return dates.Any() ? (dates.Min(), dates.Max()) : (null, null);
+        }
+
 
     }
 }

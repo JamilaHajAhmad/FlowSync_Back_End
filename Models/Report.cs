@@ -23,5 +23,8 @@ namespace WebApplicationFlowSync.Models
         public string? FileName { get; set; } // اسم الملف
         public string? FileContentType { get; set; } // نوع الملف (MIME type)
 
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+
     }
 }
