@@ -40,7 +40,15 @@ namespace WebApplicationFlowSync.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(data);
+            var (from, to) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
+            return Ok(new {
+                Date = data,
+                DateRange = new
+                {
+                  from = from,
+                  To = to
+                }
+            }) ;
         }
 
         [HttpGet("tasks-over-months")]
@@ -58,7 +66,16 @@ namespace WebApplicationFlowSync.Controllers
                 .OrderBy(x => x.Year).ThenBy(x => x.Month)
                 .ToListAsync();
 
-            return Ok(data);
+            var (from, to) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
+            return Ok(new
+            {
+                Date = data,
+                DateRange = new
+                {
+                    from = from,
+                    To = to
+                }
+            });
         }
 
         [HttpGet("task-status-summary")]
@@ -73,7 +90,16 @@ namespace WebApplicationFlowSync.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(data);
+            var (from, to) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
+            return Ok(new
+            {
+                Date = data,
+                DateRange = new
+                {
+                    from = from,
+                    To = to
+                }
+            });
         }
 
         [HttpGet("calendar-activity")]
@@ -89,7 +115,16 @@ namespace WebApplicationFlowSync.Controllers
                 .OrderBy(x => x.Date)
                 .ToListAsync();
 
-            return Ok(data);
+            var (from, to) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
+            return Ok(new
+            {
+                Date = data,
+                DateRange = new
+                {
+                    from = from,
+                    To = to
+                }
+            });
         }
 
         [HttpGet("tasks-by-case-source")]
@@ -105,7 +140,16 @@ namespace WebApplicationFlowSync.Controllers
                 })
                 .ToListAsync();
 
-            return Ok(data);
+            var (from, to) = await GetDateRangeAsync(context.Tasks.Select(t => t.CreatedAt));
+            return Ok(new
+            {
+                Date = data,
+                DateRange = new
+                {
+                    from = from,
+                    To = to
+                }
+            });
         }
 
         [HttpGet("requests-stream-by-type")]
@@ -128,7 +172,16 @@ namespace WebApplicationFlowSync.Controllers
                 .OrderBy(x => x.Year).ThenBy(x => x.Month)
                 .ToListAsync();
 
-            return Ok(data);
+            var (from, to) = await GetDateRangeAsync(context.PendingMemberRequests.Select(r => r.RequestedAt));
+            return Ok(new
+            {
+                Date = data,
+                DateRange = new
+                {
+                    from = from,
+                    To = to
+                }
+            });
         }
 
         // Dashboard Repots

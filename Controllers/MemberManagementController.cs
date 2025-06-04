@@ -5,9 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
-using WebApplicationFlowSync.Models.Requests.WebApplicationFlowSync.Models.Requests;
 using WebApplicationFlowSync.services.EmailService;
-using WebApplicationFlowSync.services.NotificationService;
 using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
@@ -53,7 +51,6 @@ namespace WebApplicationFlowSync.Controllers
                     OngoingTasks = activeTasksCount,
                     IsRemoved = user.IsRemoved,
                     PictureURL = user.PictureURL
-                    //DeleteEndpoint = $"apiMember/MemberManagementController/delete-member/{user.Id}"
                 });
 
             }
@@ -63,6 +60,51 @@ namespace WebApplicationFlowSync.Controllers
                     .ToList();
 
                 return Ok(orderedMembers);
+        }
+
+        [HttpGet("member-details/{userId}")]
+        public async Task<IActionResult> GetMemberDetails(string userId)
+        {
+            var user = await userManager.Users
+                .Include(u => u.Tasks)
+                .FirstOrDefaultAsync(u => u.Id == userId && u.Role == Role.Member);
+
+            if (user == null)
+                return NotFound("المستخدم غير موجود أو ليس عضواً.");
+
+            var taskStats = new
+            {
+                Opened = user.Tasks.Count(t => t.Type == TaskStatus.Opened),
+                Completed = user.Tasks.Count(t => t.Type == TaskStatus.Completed),
+                Delayed = user.Tasks.Count(t => t.Type == TaskStatus.Delayed),
+                Frozen = user.Tasks.Count(t => t.Type == TaskStatus.Frozen),
+            };
+
+            var result = new
+            {
+                user.Id,
+                FullName = $"{user.FirstName} {user.LastName}",
+                user.Email,
+                user.Major,
+                user.Address,
+                user.PictureURL,
+                user.Status,
+                user.IsRemoved,
+                TaskStatistics = taskStats,
+                AllTasks = user.Tasks.Select(t => new
+                {
+                    t.FRNNumber,
+                    t.OSSNumber,
+                    t.Title,
+                    t.Type,
+                    t.Priority,
+                    t.CreatedAt,
+                    t.Deadline,
+                    t.IsDelayed
+                }).ToList()
+            };
+
+            return Ok(result);
         }
 
 
@@ -104,6 +146,21 @@ namespace WebApplicationFlowSync.Controllers
 
             return Ok("Member has been removed successfully.Please reassign his tasks");
 
+        }
+
+        [HttpGet("member-names")]
+        public async Task<IActionResult> GetAllMemberNames()
+        {
+            var members = await userManager.Users
+                .Where(u => u.Role == Role.Member && !u.IsRemoved && u.EmailConfirmed)
+                .Select(u => new
+                {
+                    u.Id,
+                    FullName = $"{u.FirstName} {u.LastName}"
+                })
+                .ToListAsync();
+
+            return Ok(members);
         }
 
         [HttpGet("members-with-ongoing-tasks")]
