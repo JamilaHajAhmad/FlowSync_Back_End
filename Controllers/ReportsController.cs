@@ -456,6 +456,8 @@ namespace WebApplicationFlowSync.Controllers
                     report.DataJson,
                     report.FileName,
                     report.FileContentType,
+                    report.FromDate,
+                    report.ToDate,
                     report.FileData
                 }
             });
@@ -476,7 +478,9 @@ namespace WebApplicationFlowSync.Controllers
                     r.CreatedAt,
                     r.DataJson,
                     r.FileName,
-                    r.FileData,
+                    r.FromDate,
+                    r.ToDate,
+                    r.FileData
                 })
                 .ToListAsync();
 
