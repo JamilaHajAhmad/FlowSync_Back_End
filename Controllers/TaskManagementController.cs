@@ -109,9 +109,9 @@ namespace WebApplicationFlowSync.Controllers
         }
 
 
-        [HttpPatch("edit-task")]
+        [HttpPatch("edit-task/{taskId}")]
         [Authorize(Roles = "Leader")]
-        public async Task<IActionResult> EditTask(EditTaskDto dto)
+        public async Task<IActionResult> EditTask(int taskId ,EditTaskDto dto)
         {
             // الحصول على المستخدم الحالي
             var leader = await userManager.GetUserAsync(User);
@@ -124,7 +124,7 @@ namespace WebApplicationFlowSync.Controllers
 
             var task = await context.Tasks
                 .Include(t => t.User)
-                .FirstOrDefaultAsync(t => t.FRNNumber == dto.FRNNumber);
+                .FirstOrDefaultAsync(t => t.Id == taskId);
 
             if (task == null)
             {
@@ -140,14 +140,14 @@ namespace WebApplicationFlowSync.Controllers
             }
 
             // تحديث الحقول إذا تم إرسالها ما عدا اذا كانت فارغ 
-            if (!string.IsNullOrWhiteSpace(dto.NewFRNNumber))
+            if (!string.IsNullOrWhiteSpace(dto.FRNNumber))
             {
                 // التحقق من عدم وجود مهمة بنفس الرقم الجديد
-                bool frnExists = await context.Tasks.AnyAsync(t => t.FRNNumber == dto.NewFRNNumber);
+                bool frnExists = await context.Tasks.AnyAsync(t => t.FRNNumber == dto.FRNNumber);
                 if (frnExists)
                     return BadRequest("Another task with the same FRNNumber already exists.");
 
-                task.FRNNumber = dto.NewFRNNumber;
+                task.FRNNumber = dto.FRNNumber;
             }
 
             if (!string.IsNullOrWhiteSpace(dto.OSSNumber))
@@ -157,7 +157,7 @@ namespace WebApplicationFlowSync.Controllers
                 task.Title = dto.Title;
 
             if (dto.CaseSource != null)
-                task.CaseSource = dto.CaseSource;
+                task.CaseSource = dto.CaseSource.Value;
 
             if (!string.IsNullOrWhiteSpace(dto.CaseType))
                 task.CaseType = dto.CaseType;
