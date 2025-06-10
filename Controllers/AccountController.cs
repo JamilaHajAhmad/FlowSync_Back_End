@@ -413,7 +413,7 @@ namespace WebApplicationFlowSync.Controllers
                         m.Email);
                 }
 
-                return Ok("Your account has been deactivated (marked as removed).");
+                return Ok("Your account has been deactivated.");
             }
         }
 

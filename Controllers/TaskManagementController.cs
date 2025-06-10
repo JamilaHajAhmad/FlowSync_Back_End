@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
@@ -106,6 +107,87 @@ namespace WebApplicationFlowSync.Controllers
                 return StatusCode(500, ex.InnerException?.Message ?? ex.Message);
             }
         }
+
+
+        [HttpPatch("edit-task")]
+        [Authorize(Roles = "Leader")]
+        public async Task<IActionResult> EditTask(EditTaskDto dto)
+        {
+            // الحصول على المستخدم الحالي
+            var leader = await userManager.GetUserAsync(User);
+
+            // التأكد من أن المستخدم هو قائد
+            if (leader == null || leader.Role != Role.Leader)
+            {
+                return Forbid("Only leaders can edit tasks.");
+            }
+
+            var task = await context.Tasks
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.FRNNumber == dto.FRNNumber);
+
+            if (task == null)
+            {
+                return NotFound("Task not found.");
+            }
+
+            if (task.User?.LeaderID != leader.Id)
+                return Forbid("You are not authorized to edit this task.");
+
+            if (task.Type == TaskStatus.Completed)
+            {
+                return BadRequest("Cannot edit a completed task.");
+            }
+
+            // تحديث الحقول إذا تم إرسالها ما عدا اذا كانت فارغ 
+            if (!string.IsNullOrWhiteSpace(dto.NewFRNNumber))
+            {
+                // التحقق من عدم وجود مهمة بنفس الرقم الجديد
+                bool frnExists = await context.Tasks.AnyAsync(t => t.FRNNumber == dto.NewFRNNumber);
+                if (frnExists)
+                    return BadRequest("Another task with the same FRNNumber already exists.");
+
+                task.FRNNumber = dto.NewFRNNumber;
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.OSSNumber))
+                task.OSSNumber = dto.OSSNumber;
+
+            if (!string.IsNullOrWhiteSpace(dto.Title))
+                task.Title = dto.Title;
+
+            if (dto.CaseSource != null)
+                task.CaseSource = dto.CaseSource;
+
+            if (!string.IsNullOrWhiteSpace(dto.CaseType))
+                task.CaseType = dto.CaseType;
+
+            if (dto.Priority != null)
+                task.Priority = (TaskPriority)dto.Priority;
+            
+
+            if (!string.IsNullOrWhiteSpace(dto.SelectedMemberId))
+            {
+                var member = await context.Users.FirstOrDefaultAsync(u => u.Id == dto.SelectedMemberId && u.LeaderID == leader.Id);
+                if (member == null)
+                    return BadRequest("Selected member not found or not under your team.");
+
+                task.UserID = dto.SelectedMemberId;
+            }
+
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return Ok("Task updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.InnerException?.Message ?? ex.Message);
+            }
+        }
+
+
         [HttpGet("all-tasks")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetAllTasks([FromQuery] TaskStatus? type)

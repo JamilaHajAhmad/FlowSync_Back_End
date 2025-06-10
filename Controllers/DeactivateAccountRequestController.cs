@@ -15,14 +15,14 @@ namespace WebApplicationFlowSync.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DeleteAccountRequestController : ControllerBase
+    public class DeactivateAccountRequestController : ControllerBase
     {
         private readonly ApplicationDbContext context;
         private readonly UserManager<AppUser> userManager;
         private readonly INotificationService notificationService;
         private readonly IEmailService emailService;
 
-        public DeleteAccountRequestController(ApplicationDbContext context, UserManager<AppUser> userManager ,INotificationService notificationService, IEmailService emailService)
+        public DeactivateAccountRequestController(ApplicationDbContext context, UserManager<AppUser> userManager ,INotificationService notificationService, IEmailService emailService)
         {
             this.context = context;
             this.userManager = userManager;
@@ -30,7 +30,7 @@ namespace WebApplicationFlowSync.Controllers
             this.emailService = emailService;
         }
 
-        [HttpGet("all-delete-account-requests")]
+        [HttpGet("all-deactivation-account-requests")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetAllDeleteAccountRequests()
         {
@@ -51,7 +51,7 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(requests);
         }
 
-        [HttpPost("approve-delete-member-request/{requestId}")]
+        [HttpPost("approve-deactivation-member-request/{requestId}")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> AprroveDeleteAccountRequest(int requestId)
         {
@@ -102,7 +102,7 @@ namespace WebApplicationFlowSync.Controllers
 
         }
 
-        [HttpPost("reject-delete-member-request/{requestId}")]
+        [HttpPost("reject-deactivation-member-request/{requestId}")]
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> RejectDeleteAccountRequest(int requestId)
         {
