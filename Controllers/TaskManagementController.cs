@@ -179,7 +179,21 @@ namespace WebApplicationFlowSync.Controllers
             try
             {
                 await context.SaveChangesAsync();
-                return Ok("Task updated successfully.");
+                //return Ok("Task updated successfully.");
+                return Ok(new
+                {
+                    task.Id,
+                    task.FRNNumber,
+                    task.OSSNumber,
+                    task.Title,
+                    task.CaseSource,
+                    task.CaseType,
+                    task.Priority,
+                    task.Type,
+                    task.IsDelayed,
+                    task.CreatedAt,
+                    task.Deadline,
+                });
             }
             catch (Exception ex)
             {
