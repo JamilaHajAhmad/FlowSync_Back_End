@@ -208,6 +208,7 @@ namespace WebApplicationFlowSync.Controllers
             var tasks = taskList
                 .Select(t => new
                 {
+                    TaskId = t.Id,
                     TaskTitle = t.Title,
                     FRNNumber = t.FRNNumber,
                     OSSNumber = t.OSSNumber,
@@ -262,6 +263,7 @@ namespace WebApplicationFlowSync.Controllers
             var tasks = taskList
                 .Select(t => new
                 {
+                    TaskId = t.Id,
                     TaskTitle = t.Title,
                     FRNNumber = t.FRNNumber,
                     OSSNumber = t.OSSNumber,
