@@ -27,7 +27,7 @@ namespace WebApplicationFlowSync.Models
     public enum NotificationType
     {
         SignUpRequest,
-        DeleteAccountRequest,
+        DeactivateAccountRequest,
         Approval,
         Rejection,
         ChangeStatusRequest,

@@ -2,7 +2,7 @@
 {
     namespace WebApplicationFlowSync.Models.Requests
     {
-        public class DeleteAccountRequest : PendingMemberRequest
+        public class DeactivateAccountRequest : PendingMemberRequest
         {
             public string? Reason { get; set; } // اختياري: سبب الحذف
         }

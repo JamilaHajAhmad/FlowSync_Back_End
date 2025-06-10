@@ -254,7 +254,7 @@ namespace WebApplicationFlowSync.Controllers
                 .FirstOrDefaultAsync(u => u.Id == dto.NewMemberId
                     && u.Role == Role.Member
                     && u.LeaderID == leader.Id
-                    && !u.IsRemoved);
+                    && !u.IsDeactivated);
 
             if (toUser == null) return BadRequest("Invalid member selected.");
 

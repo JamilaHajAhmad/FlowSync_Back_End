@@ -13,7 +13,7 @@ namespace WebApplicationFlowSync.Models
     public string LastName { get; set; }
 
     public UserStatus Status { get; set; } = UserStatus.On_Duty;
-    public bool IsRemoved { get; set; } = false;
+    public bool IsDeactivated { get; set; } = false;
     public string? Major { get; set; } = null;
 
     [Required, MaxLength(20)]

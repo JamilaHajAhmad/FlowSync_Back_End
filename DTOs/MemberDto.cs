@@ -10,7 +10,7 @@ namespace WebApplicationFlowSync.DTOs
         public UserStatus Status { get; set; }
         public string Email { get; set; }
         public int OngoingTasks { get; set; }
-        public bool IsRemoved { get; set; }
+        public bool IsDeactivated { get; set; }
         public string PictureURL { get; set; }
     }
 }

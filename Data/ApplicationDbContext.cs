@@ -60,7 +60,7 @@ namespace WebApplicationFlowSync.Data
            .HasValue<SignUpRequest>(RequestType.SignUp)
            .HasValue<CompleteTaskRequest>(RequestType.CompleteTask)
            .HasValue<FreezeTaskRequest>(RequestType.FreezeTask)
-           .HasValue<DeleteAccountRequest>(RequestType.DeleteAccount)
+           .HasValue<DeactivateAccountRequest>(RequestType.DeactivateAccount)
             .HasValue <ChangeStatusRequest>(RequestType.ChangeStatus);
 
             //تعديل اسم عمود FRN

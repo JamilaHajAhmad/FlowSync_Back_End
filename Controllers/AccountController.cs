@@ -13,7 +13,6 @@ using WebApplicationFlowSync.Models.Requests.WebApplicationFlowSync.Models.Reque
 using WebApplicationFlowSync.services;
 using WebApplicationFlowSync.services.EmailService;
 using WebApplicationFlowSync.services.NotificationService;
-using Task = System.Threading.Tasks.Task;
 
 namespace WebApplicationFlowSync.Controllers
 {
@@ -50,12 +49,12 @@ namespace WebApplicationFlowSync.Controllers
             if (existingUserByUsername != null)
                 throw new Exception("Username is already taken.");
 
-            if (model.Role == Role.Member && !userManager.Users.Any(u => u.Role == Role.Leader && !u.IsRemoved))
+            if (model.Role == Role.Member && !userManager.Users.Any(u => u.Role == Role.Leader && !u.IsDeactivated))
                 throw new Exception("A member cannot register without a leader.");
 
             if (model.Role == Role.Leader)
             {
-                var existingLeader = await userManager.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsRemoved);
+                var existingLeader = await userManager.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
                 if (existingLeader != null)
                     throw new Exception("There is really only one team leader.");
             }
@@ -136,7 +135,7 @@ namespace WebApplicationFlowSync.Controllers
             var user = await userManager.FindByEmailAsync(model.Email);
             if (user is null) return Unauthorized("Email not registered.");
 
-            if (user.IsRemoved) return Unauthorized("account is deactivated.");
+            if (user.IsDeactivated) return Unauthorized("account is deactivated.");
 
 
             //Check Password
@@ -308,7 +307,7 @@ namespace WebApplicationFlowSync.Controllers
             {
                 // تعيين القائد للأعضاء الذين ليس لديهم قائد
                 var membersWithoutLeader = await userManager.Users
-                    .Where(u => u.Role == Role.Member && u.LeaderID == null && !u.IsRemoved && u.EmailConfirmed)
+                    .Where(u => u.Role == Role.Member && u.LeaderID == null && !u.IsDeactivated && u.EmailConfirmed)
                     .ToListAsync();
 
                 foreach (var m in membersWithoutLeader)
@@ -343,9 +342,9 @@ namespace WebApplicationFlowSync.Controllers
         //    await emailService.sendEmailAsync(emailDto);
         //}
 
-        [HttpPost("delete-account")]
+        [HttpPost("deactivate-account")]
         [Authorize]
-        public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountDto dto)
+        public async Task<IActionResult> DeactivateAccount([FromBody] DeactivateAccountDto dto)
         {
             var user = await userManager.GetUserAsync(User);
 
@@ -358,17 +357,17 @@ namespace WebApplicationFlowSync.Controllers
 
             if (user.Role == Role.Member)
             {
-                bool hasExistingDeleteAccountRequest = await context.PendingMemberRequests.OfType<DeleteAccountRequest>()
+                bool hasExistingDeactivateAccountRequest = await context.PendingMemberRequests.OfType<DeactivateAccountRequest>()
                     .AnyAsync(r =>
                       r.MemberId == user.Id &&
                       r.RequestStatus == RequestStatus.Pending);
 
-                if (hasExistingDeleteAccountRequest)
+                if (hasExistingDeactivateAccountRequest)
                 {
-                    throw new Exception("You already have a pending delete request.");
+                    throw new Exception("You already have a pending deactivation request.");
                 }
 
-                var request = new DeleteAccountRequest
+                var request = new DeactivateAccountRequest
                 {
                     Reason = dto.Reason,
                     MemberName = user.FirstName + " " + user.LastName,
@@ -376,7 +375,7 @@ namespace WebApplicationFlowSync.Controllers
                     Email = user.Email,
                     RequestedAt = DateTime.Now,
                     RequestStatus = RequestStatus.Pending,
-                    Type = RequestType.DeleteAccount
+                    Type = RequestType.DeactivateAccount
                 };
 
                 context.PendingMemberRequests.Add(request);
@@ -384,17 +383,18 @@ namespace WebApplicationFlowSync.Controllers
 
                 await notificationService.SendNotificationAsync(
                     user.LeaderID,
-                    $"Member {user.FirstName} {user.LastName} has submitted a request to Delete his account",
-                    NotificationType.DeleteAccountRequest);
-                return Ok("Your deletion request has been sent to the leader for approval.");
+                    $"Member {user.FirstName} {user.LastName} has submitted a request to deactivate their account",
+                    NotificationType.DeactivateAccountRequest);
+
+                return Ok("Your deactivation request has been sent to the leader for approval.");
             }
             else // Leader
             {
-                user.IsRemoved = true;
+                user.IsDeactivated = true;
                 await userManager.UpdateAsync(user);
 
                 var membersUnderLeader = await userManager.Users
-                    .Where(u => u.LeaderID == user.Id && u.Role == Role.Member && !u.IsRemoved)
+                    .Where(u => u.LeaderID == user.Id && u.Role == Role.Member && !u.IsDeactivated)
                     .ToListAsync();
 
                 foreach (var m in membersUnderLeader)
@@ -416,6 +416,7 @@ namespace WebApplicationFlowSync.Controllers
                 return Ok("Your account has been deactivated (marked as removed).");
             }
         }
+
 
 
         [HttpGet("connected-devices")]

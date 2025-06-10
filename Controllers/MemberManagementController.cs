@@ -49,14 +49,14 @@ namespace WebApplicationFlowSync.Controllers
                     Status = user.Status,
                     Email = user.Email,
                     OngoingTasks = activeTasksCount,
-                    IsRemoved = user.IsRemoved,
+                    IsDeactivated = user.IsDeactivated,
                     PictureURL = user.PictureURL
                 });
 
             }
                 // ترتيب: غير المحذوفين أولاً، ثم المحذوفين
                 var orderedMembers = members
-                    .OrderBy( m => m.IsRemoved)
+                    .OrderBy( m => m.IsDeactivated)
                     .ToList();
 
                 return Ok(orderedMembers);
@@ -85,32 +85,25 @@ namespace WebApplicationFlowSync.Controllers
                 user.Id,
                 FullName = $"{user.FirstName} {user.LastName}",
                 user.Email,
+                user.DateOfBirth,
+                user.JoinedAt,
                 user.Major,
+                user.Phone,
                 user.Address,
                 user.PictureURL,
                 user.Status,
-                user.IsRemoved,
-                TaskStatistics = taskStats,
-                AllTasks = user.Tasks.Select(t => new
-                {
-                    t.FRNNumber,
-                    t.OSSNumber,
-                    t.Title,
-                    t.Type,
-                    t.Priority,
-                    t.CreatedAt,
-                    t.Deadline,
-                    t.IsDelayed
-                }).ToList()
+                user.Bio,
+                user.IsDeactivated,
+                TaskStatistics = taskStats
             };
 
             return Ok(result);
         }
 
 
-        [HttpDelete("delete-member/{memberId}")]
+        [HttpDelete("deactivate-member/{memberId}")]
         [Authorize(Roles = "Leader")]
-        public async Task<IActionResult> DeleteMember(string memberId)
+        public async Task<IActionResult> DeactivateMember(string memberId)
         {
             var member = await userManager.Users
                 .Include(u => u.Tasks)
@@ -124,7 +117,7 @@ namespace WebApplicationFlowSync.Controllers
             if (leader == null || leader.Id != member.LeaderID)
                 return Forbid("You are not authorized to remove this member");
 
-            member.IsRemoved = true;
+            member.IsDeactivated = true;
             await context.SaveChangesAsync();
 
             var emailDto = new EmailDto()
@@ -152,7 +145,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> GetAllMemberNames()
         {
             var members = await userManager.Users
-                .Where(u => u.Role == Role.Member && !u.IsRemoved && u.EmailConfirmed)
+                .Where(u => u.Role == Role.Member && !u.IsDeactivated && u.EmailConfirmed)
                 .Select(u => new
                 {
                     u.Id,
@@ -167,7 +160,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> GetMembersWithOngoingTasks()
         {
             var members = await userManager.Users
-                .Where(u => u.Role == Role.Member && u.EmailConfirmed == true && u.Status == UserStatus.On_Duty && !u.IsRemoved)
+                .Where(u => u.Role == Role.Member && u.EmailConfirmed == true && u.Status == UserStatus.On_Duty && !u.IsDeactivated)
                 .Include(u => u.Tasks)
                 .Select(u => new
                 {

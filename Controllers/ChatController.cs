@@ -77,7 +77,7 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized("Only leaders can send group messages.");
 
             var teamMembers = await context.Users
-                .Where(u => u.LeaderID == sender.Id && !u.IsRemoved && u.EmailConfirmed)
+                .Where(u => u.LeaderID == sender.Id && !u.IsDeactivated && u.EmailConfirmed)
                 .ToListAsync();
 
             if (teamMembers.Count == 0)
@@ -119,7 +119,7 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized();
 
             var users = await context.Users
-                .Where(u => u.EmailConfirmed && !u.IsRemoved)
+                .Where(u => u.EmailConfirmed && !u.IsDeactivated)
                 .ToListAsync();
 
             var chatUsers = new List<ChatUserDto>();

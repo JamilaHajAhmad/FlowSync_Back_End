@@ -30,7 +30,7 @@ namespace WebApplicationFlowSync.Models
         SignUp,
         CompleteTask,
         FreezeTask,
-        DeleteAccount,
+        DeactivateAccount,
         ChangeStatus
     }
 

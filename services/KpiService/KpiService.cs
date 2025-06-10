@@ -86,7 +86,7 @@ namespace WebApplicationFlowSync.services.KpiService
                 return new KpiResultDto();
 
             var memberIds = leader.TeamMembers
-                .Where(m => !m.IsRemoved)
+                .Where(m => !m.IsDeactivated)
                 .Select(m => m.Id)
                 .ToList();
 

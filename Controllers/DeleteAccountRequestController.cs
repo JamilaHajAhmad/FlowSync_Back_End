@@ -35,7 +35,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> GetAllDeleteAccountRequests()
         {
             var requests = await context.PendingMemberRequests
-                .OfType<DeleteAccountRequest>()
+                .OfType<DeactivateAccountRequest>()
                 .Select(r => new
                 {
                     r.RequestId,
@@ -60,12 +60,12 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized("Only leaders can respond to requests.");
 
             var request = await context.PendingMemberRequests
-                .OfType<DeleteAccountRequest>()
+                .OfType<DeactivateAccountRequest>()
                 .Include(r => r.Member)
                 .FirstOrDefaultAsync(r => r.RequestId == requestId);
 
             if (request == null)
-                return NotFound("Delete account request not found.");
+                return NotFound("Deactivation request not found.");
 
             if (request.RequestStatus != RequestStatus.Pending)
                 return BadRequest("This request has already been processed.");
@@ -74,17 +74,17 @@ namespace WebApplicationFlowSync.Controllers
 
             var member = request.Member;
 
-            member.IsRemoved = true;
+            member.IsDeactivated = true;
             await userManager.UpdateAsync(member);
             await context.SaveChangesAsync();
 
 
             await notificationService.SendNotificationAsync(
                 member.Id,
-                    $@"
+                   $@"
                     Dear {member.FirstName},
 
-                    Your request to delete your account has been approved by your team leader.
+                    Your request to deactivate your account has been approved by your team leader.
                     As of now, your account has been deactivated and you will no longer be able to log in.
 
                     If you believe this was a mistake or you have further questions, please contact your team leader.
@@ -111,12 +111,12 @@ namespace WebApplicationFlowSync.Controllers
                 return Unauthorized("Only leaders can respond to requests.");
 
             var request = await context.PendingMemberRequests
-                .OfType<DeleteAccountRequest>()
+                .OfType<DeactivateAccountRequest>()
                 .Include(r => r.Member)
                 .FirstOrDefaultAsync(r => r.RequestId == requestId);
 
             if (request == null)
-                return NotFound("Delete account request not found.");
+                return NotFound("Deactivation request not found.");
 
             if (request.RequestStatus != RequestStatus.Pending)
                 return BadRequest("This request has already been handled.");
@@ -128,12 +128,12 @@ namespace WebApplicationFlowSync.Controllers
 
             await notificationService.SendNotificationAsync(
              request.MemberId,
-             $"Your Delete aacount request has been rejected.",
+             $"Your account deactivation request has been rejected.",
              NotificationType.Rejection,
              member.Email
            );
 
-            return Ok("Delete account request has been rejected.");
+            return Ok("Deactivation request has been rejected.");
 
         }
     }
