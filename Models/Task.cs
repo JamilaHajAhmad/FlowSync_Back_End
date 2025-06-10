@@ -1,13 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplicationFlowSync.Models
 {
+    [Index(nameof(FRNNumber), IsUnique = true)]
     public class Task
     {
         [Key]
-        [RegularExpression(@"^\d{5}$", ErrorMessage = "FRNNumber must be exactly 5 digits.")]
+        public int Id { get; set; }
+
+        [Required]
+        [RegularExpression(@"^\d{5}$")]
         public string FRNNumber { get; set; }
 
         [Required]
