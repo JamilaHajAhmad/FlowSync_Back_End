@@ -143,7 +143,7 @@ namespace WebApplicationFlowSync.Controllers
             if (!string.IsNullOrWhiteSpace(dto.FRNNumber))
             {
                 // التحقق من عدم وجود مهمة بنفس الرقم الجديد
-                bool frnExists = await context.Tasks.AnyAsync(t => t.FRNNumber == dto.FRNNumber);
+                bool frnExists = await context.Tasks.AnyAsync(t => t.FRNNumber == dto.FRNNumber && t.Id != taskId);
                 if (frnExists)
                     return BadRequest("Another task with the same FRNNumber already exists.");
 
