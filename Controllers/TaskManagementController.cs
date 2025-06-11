@@ -88,7 +88,7 @@ namespace WebApplicationFlowSync.Controllers
 
                 await notificationService.SendNotificationAsync(
                      member.Id,
-                      $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber})by your leader. Please check your task list.",
+                      $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}) by your leader. Please check your task list.\n\nFlowSync Team",
 
                       NotificationType.Info,
                       member.Email,
@@ -173,6 +173,16 @@ namespace WebApplicationFlowSync.Controllers
                     return BadRequest("Selected member not found or not under your team.");
 
                 task.UserID = dto.SelectedMemberId;
+                await notificationService.SendNotificationAsync(
+                    member.Id,
+                     $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}) by your leader. Please check your task list.\n\nFlowSync Team",
+
+                     NotificationType.Info,
+                     member.Email,
+                     "View Task",
+                     "http://localhost:3001/member-tasks"
+               );
+
             }
 
 
