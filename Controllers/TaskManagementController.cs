@@ -351,7 +351,7 @@ namespace WebApplicationFlowSync.Controllers
         {
             var leader = await userManager.GetUserAsync(User);
 
-            var task = await context.Tasks.FindAsync(dto.FRNNumber);
+            var task = await context.Tasks.FirstOrDefaultAsync(t => t.FRNNumber == dto.FRNNumber);
             if (task == null) return NotFound("Task not found.");
 
             var fromUser = await userManager.FindByIdAsync(task.UserID);
