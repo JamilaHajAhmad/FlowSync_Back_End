@@ -88,7 +88,7 @@ namespace WebApplicationFlowSync.Controllers
 
                 await notificationService.SendNotificationAsync(
                      member.Id,
-                      $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}) by your leader. Please check your task list.\n\nFlowSync Team",
+                      $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}) by your leader. Please check your task list.",
 
                       NotificationType.Info,
                       member.Email,
@@ -175,7 +175,7 @@ namespace WebApplicationFlowSync.Controllers
                 task.UserID = dto.SelectedMemberId;
                 await notificationService.SendNotificationAsync(
                     member.Id,
-                     $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}) by your leader. Please check your task list.\n\nFlowSync Team",
+                     $"You have been assigned a new task: {task.Title} (FRN: {task.FRNNumber}) by your leader. Please check your task list.",
 
                      NotificationType.Info,
                      member.Email,

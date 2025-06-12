@@ -213,7 +213,7 @@ namespace WebApplicationFlowSync
             {
                 KeepAliveInterval = TimeSpan.FromSeconds(120)
             };
-            
+
 
             app.MapHub<ChatHub>("/chatHub");
 

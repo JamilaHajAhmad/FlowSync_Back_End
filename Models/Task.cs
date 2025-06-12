@@ -103,10 +103,6 @@ namespace WebApplicationFlowSync.Models
                 {
                     return TimeSpan.Zero;
                 }
-                if (Type == TaskStatus.Delayed)
-                {
-
-                }
                 int allowedWorkingDays = Priority switch
                 {
                     TaskPriority.Urgent => 2,

@@ -41,7 +41,7 @@ namespace WebApplicationFlowSync.Controllers
             if (member == null || !User.IsInRole("Member"))
                 return Unauthorized();
 
-            var task = await context.Tasks.FindAsync(dto.FRNNumber);
+            var task = await context.Tasks.FirstOrDefaultAsync(t => t.FRNNumber == dto.FRNNumber);
             if (task == null)
                 return NotFound("Task not found.");
 
