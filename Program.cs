@@ -197,13 +197,35 @@ namespace WebApplicationFlowSync
 
                 Task.Run(async () =>
                 {
-                    string[] roles = { "Leader", "Member" };
+                    string[] roles = { "Leader", "Member", "Admin" };
                     foreach (var role in roles)
                     {
                         if (!await roleManager.RoleExistsAsync(role))
                         {
                             await roleManager.CreateAsync(new IdentityRole(role));
                         }
+                    }
+
+                var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+                
+                    var adminEmail = config["AdminAccount:Email"];
+                    var adminPassword = config["AdminAccount:Password"];
+                    var admin = await userManager.FindByEmailAsync(adminEmail);
+                    if (admin == null)
+                    {
+                        var newAdmin = new AppUser
+                        {
+                            UserName = adminEmail,
+                            Email = adminEmail,
+                            FirstName = "Admin",
+                            LastName = "System",
+                            Role = Role.Member, // يبقى Member لكن يُمنح دور Leader مؤقتًا
+                            EmailConfirmed = true,
+                            Status = UserStatus.On_Duty
+                        };
+                        await userManager.CreateAsync(newAdmin, adminPassword); // كلمة مرور مؤقتة
+                        await userManager.AddToRoleAsync(newAdmin, "Admin");
                     }
                 }).GetAwaiter().GetResult();
             }

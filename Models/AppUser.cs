@@ -67,8 +67,9 @@ namespace WebApplicationFlowSync.Models
 public enum Role
 {
     Leader,
-    Member
-}
+    Member,
+    Admin
+    }
  public enum UserStatus
  {
      Temporarily_Leave,
