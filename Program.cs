@@ -171,6 +171,9 @@ namespace WebApplicationFlowSync
             //BackgroundService (CalenderReminderService)
             builder.Services.AddHostedService<CalendarReminderService>();
 
+            //BackgroundService (LeaderLeaveMonitorService)
+            builder.Services.AddHostedService<LeaderLeaveMonitorService>();
+
             //calculate Kpi Service
             builder.Services.AddScoped<IKpiService , KpiService>();
 
@@ -206,9 +209,9 @@ namespace WebApplicationFlowSync
                         }
                     }
 
-                var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-                
+                    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+
                     var adminEmail = config["AdminAccount:Email"];
                     var adminPassword = config["AdminAccount:Password"];
                     var admin = await userManager.FindByEmailAsync(adminEmail);
@@ -220,7 +223,7 @@ namespace WebApplicationFlowSync
                             Email = adminEmail,
                             FirstName = "Admin",
                             LastName = "System",
-                            Role = Role.Member, // يبقى Member لكن يُمنح دور Leader مؤقتًا
+                            Role = Role.Admin, // يبقى Member لكن يُمنح دور Leader مؤقتًا
                             EmailConfirmed = true,
                             Status = UserStatus.On_Duty
                         };

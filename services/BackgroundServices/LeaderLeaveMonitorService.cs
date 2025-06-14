@@ -1,7 +1,5 @@
-﻿
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.Models;
 
@@ -10,10 +8,12 @@ namespace WebApplicationFlowSync.services.BackgroundServices
     public class LeaderLeaveMonitorService : BackgroundService
     {
         private readonly IServiceScopeFactory serviceScopeFactory;
+        private readonly ILogger<LeaderLeaveMonitorService> logger;
 
-        public LeaderLeaveMonitorService(IServiceScopeFactory serviceScopeFactory)
+        public LeaderLeaveMonitorService(IServiceScopeFactory serviceScopeFactory, ILogger<LeaderLeaveMonitorService> logger)
         {
             this.serviceScopeFactory = serviceScopeFactory;
+            this.logger = logger;
         }
 
         protected override async System.Threading.Tasks.Task ExecuteAsync(CancellationToken stoppingToken)
@@ -26,9 +26,9 @@ namespace WebApplicationFlowSync.services.BackgroundServices
                     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
                     var leader = await context.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader);
-                    var admin = await context.Users.FirstOrDefaultAsync(u => u.Role == Role.Admin && u.Email == "admin@dubaipolicegov.ae");
+                    var admin = await userManager.FindByEmailAsync("admin@dubaipolicegov.ae");
 
-                    if (leader != null && admin != null)
+                    if (leader != null && admin != null && await userManager.IsInRoleAsync(admin, "Admin"))
                     {
                         var isLeaderOnLeave = leader.Status == UserStatus.Temporarily_Leave || leader.Status == UserStatus.Annually_Leave;
                         var isAdminInLeaderRole = await userManager.IsInRoleAsync(admin, "Leader");
@@ -36,10 +36,12 @@ namespace WebApplicationFlowSync.services.BackgroundServices
                         if (isLeaderOnLeave && !isAdminInLeaderRole)
                         {
                             await userManager.AddToRoleAsync(admin, "Leader");
+                            logger.LogInformation("Admin has been granted 'Leader' role because leader is on leave.");
                         }
                         else if (!isLeaderOnLeave && isAdminInLeaderRole)
                         {
                             await userManager.RemoveFromRoleAsync(admin, "Leader");
+                            logger.LogInformation("Admin 'Leader' role removed because leader is back on duty.");
                         }
                     }
 

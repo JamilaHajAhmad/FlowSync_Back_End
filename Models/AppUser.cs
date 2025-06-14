@@ -69,7 +69,7 @@ public enum Role
     Leader,
     Member,
     Admin
-    }
+}
  public enum UserStatus
  {
      Temporarily_Leave,

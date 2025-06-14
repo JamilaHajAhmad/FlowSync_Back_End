@@ -36,9 +36,9 @@ namespace WebApplicationFlowSync.Controllers
             var currentUser = await userManager.GetUserAsync(User);
 
             // التأكد من أن المستخدم هو قائد
-            if (currentUser == null || currentUser.Role != Role.Leader)
+            if (currentUser == null || !User.IsInRole("Leader"))
             {
-                return Forbid("Only leaders can create tasks.");
+                return Forbid();
             }
 
             // التأكد من أن الـ DTO المرسل صحيح
@@ -47,10 +47,13 @@ namespace WebApplicationFlowSync.Controllers
                 return BadRequest(ModelState);
             }
 
-            // idالبحث عن العضو بناءً على ال
-
             var member = await context.Users
-             .FirstOrDefaultAsync(u => u.Id == model.SelectedMemberId && u.LeaderID == currentUser.Id && u.Role == Role.Member);
+                        .FirstOrDefaultAsync(u =>
+                            u.Id == model.SelectedMemberId &&
+                            u.Role == Role.Member &&
+                            (u.LeaderID == currentUser.Id || User.IsInRole("Admin"))
+                        );
+
 
 
             if (member == null)
@@ -117,7 +120,7 @@ namespace WebApplicationFlowSync.Controllers
             var leader = await userManager.GetUserAsync(User);
 
             // التأكد من أن المستخدم هو قائد
-            if (leader == null || leader.Role != Role.Leader)
+            if (leader == null || !User.IsInRole("Leader"))
             {
                 return Forbid("Only leaders can edit tasks.");
             }
@@ -131,7 +134,7 @@ namespace WebApplicationFlowSync.Controllers
                 return NotFound("Task not found.");
             }
 
-            if (task.User?.LeaderID != leader.Id)
+            if (task.User?.LeaderID != leader.Id && !User.IsInRole("Admin"))
                 return Forbid("You are not authorized to edit this task.");
 
             if (task.Type == TaskStatus.Completed)
@@ -168,7 +171,7 @@ namespace WebApplicationFlowSync.Controllers
 
             if (!string.IsNullOrWhiteSpace(dto.SelectedMemberId))
             {
-                var member = await context.Users.FirstOrDefaultAsync(u => u.Id == dto.SelectedMemberId && u.LeaderID == leader.Id);
+                var member = await context.Users.FirstOrDefaultAsync(u => u.Id == dto.SelectedMemberId && (u.LeaderID == leader.Id || User.IsInRole("Admin")));
                 if (member == null)
                     return BadRequest("Selected member not found or not under your team.");
 
@@ -319,7 +322,7 @@ namespace WebApplicationFlowSync.Controllers
                 .Include(u => u.Tasks)
                 .FirstOrDefaultAsync(u => u.Id == memberId && u.Role == Role.Member);
 
-            if (member == null || leader == null || member.LeaderID != leader.Id)
+            if (member == null || leader == null || (member.LeaderID != leader.Id && !User.IsInRole("Admin")))
                 return NotFound("Member not found or you are not authorized.");
 
             var filteredTasks = member.Tasks?

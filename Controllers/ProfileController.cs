@@ -80,50 +80,56 @@ namespace WebApplicationFlowSync.Controllers
             // محاولة إنشاء طلب تعديل الحالة إن وُجد تعديل في Status
             string? statusMessage = null;
 
-            if (dto.Status != null && user.Role == Role.Member && dto.Status != user.Status)
+            if (dto.Status != null && dto.Status != user.Status)
             {
+                if(user.Role == Role.Member) { 
                 var hasUrgentTasks = await context.Tasks
                     .AnyAsync(t => t.UserID == user.Id && t.Priority == TaskPriority.Urgent && t.Type == TaskStatus.Opened);
 
-                if (hasUrgentTasks)
-                {
-                    statusMessage = "Status change request was not submitted because you have urgent tasks.";
-                }
-                else
-                {
-                    bool hasExistingRequest = await context.PendingMemberRequests
-                        .OfType<ChangeStatusRequest>()
-                        .AnyAsync(r => r.NewStatus == dto.Status && r.MemberId == user.Id && r.RequestStatus == RequestStatus.Pending);
-
-                    if (hasExistingRequest)
+                    if (hasUrgentTasks)
                     {
-                        statusMessage = "You already have a pending request for this status.";
+                        statusMessage = "Status change request was not submitted because you have urgent tasks.";
                     }
                     else
                     {
-                        var request = new ChangeStatusRequest
+                        bool hasExistingRequest = await context.PendingMemberRequests
+                            .OfType<ChangeStatusRequest>()
+                            .AnyAsync(r => r.NewStatus == dto.Status && r.MemberId == user.Id && r.RequestStatus == RequestStatus.Pending);
+
+                        if (hasExistingRequest)
                         {
-                            MemberId = user.Id,
-                            LeaderId = user.LeaderID,
-                            Email = user.Email,
-                            MemberName = $"{user.FirstName} {user.LastName}",
-                            PreviousStatus = user.Status,
-                            NewStatus = dto.Status.Value,
-                            Type = RequestType.ChangeStatus,
-                            RequestedAt = DateTime.Now
-                        };
+                            statusMessage = "You already have a pending request for this status.";
+                        }
+                        else
+                        {
+                            var request = new ChangeStatusRequest
+                            {
+                                MemberId = user.Id,
+                                LeaderId = user.LeaderID,
+                                Email = user.Email,
+                                MemberName = $"{user.FirstName} {user.LastName}",
+                                PreviousStatus = user.Status,
+                                NewStatus = dto.Status.Value,
+                                Type = RequestType.ChangeStatus,
+                                RequestedAt = DateTime.Now
+                            };
 
-                        context.PendingMemberRequests.Add(request);
-                        await context.SaveChangesAsync();
+                            context.PendingMemberRequests.Add(request);
+                            await context.SaveChangesAsync();
 
-                        await notificationService.SendNotificationAsync(
-                            user.LeaderID,
-                            $"New request to change status from {user.FirstName} {user.LastName}.",
-                            NotificationType.ChangeStatusRequest
-                        );
+                            await notificationService.SendNotificationAsync(
+                                user.LeaderID,
+                                $"New request to change status from {user.FirstName} {user.LastName}.",
+                                NotificationType.ChangeStatusRequest
+                            );
 
-                        statusMessage = "Status change request submitted successfully.";
+                            statusMessage = "Status change request submitted successfully.";
+                        }
                     }
+                }
+                else if (user.Role == Role.Leader || user.Role == Role.Admin)
+                {
+                    user.Status = dto.Status.Value;
                 }
             }
 
@@ -141,7 +147,12 @@ namespace WebApplicationFlowSync.Controllers
 
             if (onlyStatusChanged)
             {
-                return Ok(statusMessage ?? "no changes made");
+                // تأكد من حفظ التعديل في حالة تغيير الحالة فقط
+                var updateResult = await userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                    return BadRequest("Failed to update profile.");
+
+                return Ok(statusMessage ?? "Status updated successfully.");
             }
 
             var result = await userManager.UpdateAsync(user);
