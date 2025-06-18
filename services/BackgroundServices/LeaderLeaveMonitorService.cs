@@ -25,26 +25,38 @@ namespace WebApplicationFlowSync.services.BackgroundServices
                     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
-                    var leader = await context.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader);
+                    var leader = await context.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
                     var admin = await userManager.FindByEmailAsync("admin@dubaipolicegov.ae");
 
-                    if (leader != null && admin != null && await userManager.IsInRoleAsync(admin, "Admin"))
+                    if (admin != null && await userManager.IsInRoleAsync(admin, "Admin"))
                     {
-                        var isLeaderOnLeave = leader.Status == UserStatus.Temporarily_Leave || leader.Status == UserStatus.Annually_Leave;
                         var isAdminInLeaderRole = await userManager.IsInRoleAsync(admin, "Leader");
 
-                        if (isLeaderOnLeave && !isAdminInLeaderRole)
+                        bool shouldAssignLeaderRoleToAdmin = false;
+
+                        if (leader != null)
+                        {
+                            var isLeaderOnLeave = leader.Status == UserStatus.Temporarily_Leave || leader.Status == UserStatus.Annually_Leave;
+                            if (isLeaderOnLeave)
+                                shouldAssignLeaderRoleToAdmin = true;
+                        }
+                        else
+                        {
+                            // لا يوجد قائد مفعل حاليًا
+                            shouldAssignLeaderRoleToAdmin = true;
+                        }
+
+                        if (shouldAssignLeaderRoleToAdmin && !isAdminInLeaderRole)
                         {
                             await userManager.AddToRoleAsync(admin, "Leader");
-                            logger.LogInformation("Admin has been granted 'Leader' role because leader is on leave.");
+                            logger.LogInformation("Admin has been granted 'Leader' role because leader is on leave or deactivated.");
                         }
-                        else if (!isLeaderOnLeave && isAdminInLeaderRole)
+                        else if (!shouldAssignLeaderRoleToAdmin && isAdminInLeaderRole)
                         {
                             await userManager.RemoveFromRoleAsync(admin, "Leader");
-                            logger.LogInformation("Admin 'Leader' role removed because leader is back on duty.");
+                            logger.LogInformation("Admin 'Leader' role removed because leader is now active and on duty.");
                         }
                     }
-
                 }
                 await System.Threading.Tasks.Task.Delay(TimeSpan.FromMinutes(2), stoppingToken);
 

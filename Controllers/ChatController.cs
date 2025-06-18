@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Hubs;
@@ -110,6 +109,45 @@ namespace WebApplicationFlowSync.Controllers
 
         }
 
+        [HttpPut("edit/{messageId}")]
+        public async Task<IActionResult> EditMessage(int messageId, [FromBody] EditMessageDto dto)
+        {
+            var user = await userManager.GetUserAsync(User);
+            var message = await context.ChatMessages.FindAsync(messageId);
+
+            if (message == null)
+                return NotFound("Message not found.");
+
+            if (message.SenderId != user.Id)
+                return Forbid("You can only delete your own messages.");
+
+            message.Message = dto.Message;
+            await context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message.Id,
+                message.Message
+            });
+        }
+
+        [HttpDelete("delete/{messageId}")]
+        public async Task<IActionResult> DeleteMessage(int messageId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            var message = await context.ChatMessages.FindAsync(messageId);
+
+            if(message == null)
+                return NotFound("Message not found.");
+
+            if(message.SenderId != user.Id)
+                return Forbid("You can only delete your own messages.");
+
+            context.ChatMessages.Remove(message);
+            await context.SaveChangesAsync();
+
+            return Ok("Message deleted successfully.");
+        }
 
         [HttpGet("users")]
         public async Task<IActionResult> GetChatUsers()
