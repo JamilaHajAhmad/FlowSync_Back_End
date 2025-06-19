@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Cms;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Models;
@@ -190,7 +189,7 @@ namespace WebApplicationFlowSync.Controllers
         public async Task<IActionResult> GetLeaderMonthlyStatusCounts()
         {
             var leader = await userManager.GetUserAsync(User);
-            if (leader == null)
+            if (leader == null || !User.IsInRole("Leader")) 
                 return Unauthorized("User not found");
              
             var memberIds = await context.Users

@@ -133,7 +133,7 @@ namespace WebApplicationFlowSync.Controllers
             int selectedYear = year ?? DateTime.Now.Year;
 
             var teamMembers = await context.Users
-                .Where(m => !m.IsDeactivated)
+                .Where(m => m.Role == Role.Member && m.EmailConfirmed && !m.IsDeactivated)
                 .ToListAsync();
 
             if (!teamMembers.Any())

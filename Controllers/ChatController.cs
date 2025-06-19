@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Graph.Models;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.Hubs;
@@ -122,6 +123,7 @@ namespace WebApplicationFlowSync.Controllers
                 return Forbid("You can only delete your own messages.");
 
             message.Message = dto.Message;
+            message.IsEdited = true;
             await context.SaveChangesAsync();
 
             return Ok(new
@@ -143,7 +145,7 @@ namespace WebApplicationFlowSync.Controllers
             if(message.SenderId != user.Id)
                 return Forbid("You can only delete your own messages.");
 
-            context.ChatMessages.Remove(message);
+            message.IsDeleted = true;
             await context.SaveChangesAsync();
 
             return Ok("Message deleted successfully.");
@@ -215,6 +217,8 @@ namespace WebApplicationFlowSync.Controllers
                 SenderId = m.SenderId,
                 ReceiverId = m.ReceiverId,
                 IsRead = m.IsRead,
+                IsDeleted = m.IsDeleted,
+                IsEdited = m.IsEdited,
                 IsMine = m.SenderId == currentUser.Id
             }));
         }

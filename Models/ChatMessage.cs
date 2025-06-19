@@ -19,6 +19,8 @@ namespace WebApplicationFlowSync.Models
         public DateTime SentAt { get; set; } = DateTime.Now;
 
         public bool IsRead { get; set; } = false;
+        public bool IsDeleted { get; set; } = false;
+        public bool IsEdited { get; set; } = false;
 
         [ForeignKey("SenderId")]
         public AppUser Sender { get; set; }
