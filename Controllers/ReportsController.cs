@@ -198,27 +198,29 @@ namespace WebApplicationFlowSync.Controllers
                 .Select(m => m.Id)
                 .ToListAsync();
 
+            var now = DateTime.Now;
+
             var tasks = await context.Tasks
-                .Where(t => memberIds.Contains(t.UserID))
+                .Where(t => memberIds.Contains(t.UserID) &&
+                            t.CreatedAt.Year == now.Year &&
+                            t.CreatedAt.Month == now.Month)
                 .ToListAsync();
 
-            var groupedByMonth = tasks
-                .GroupBy(t => new { t.CreatedAt.Year , t.CreatedAt.Month})
-                .Select(g => new 
-                {
-                    Year = g.Key.Year,
-                    Month = g.Key.Month,
-                    StatusCounts = g
+            var statusCounts = tasks
                     .GroupBy(t => t.Type.ToString())
                     .ToDictionary(
-                        statusGroup => statusGroup.Key,
-                        statusGroup => statusGroup.Count()
-                        )
-                })
-                .OrderBy(x => x.Year).ThenBy(x => x.Month)
-                .ToList();
+                        group => group.Key,
+                        group => group.Count()
+                    );
 
-            return Ok(groupedByMonth);
+            var result = new
+            {
+                Year = now.Year,
+                Month = now.Month,
+                StatusCounts = statusCounts
+            };
+
+            return Ok(result);
         }
 
         [HttpGet("member/monthly-task-status-counts")]
@@ -229,27 +231,29 @@ namespace WebApplicationFlowSync.Controllers
             if (member == null)
                 return Unauthorized("User not found");
 
+            var now = DateTime.Now;
+
             var tasks = await context.Tasks
-                .Where(t => t.UserID == member.Id)
+                .Where(t => t.UserID == member.Id &&
+                       t.CreatedAt.Year == now.Year &&
+                       t.CreatedAt.Month == now.Month)
                 .ToListAsync();
 
-            var groupedByMonth = tasks
-                .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month } )
-                .Select(g => new
-                {
-                    Year = g.Key.Year,
-                    Month = g.Key.Month,
-                    StatusCounts = g
+            var statusCounts = tasks
                     .GroupBy(t => t.Type.ToString())
                     .ToDictionary(
-                        statusGroup => statusGroup.Key,
-                        statusGroup => statusGroup.Count()
-                        )
-                })
-                .OrderBy(x => x.Year).ThenBy(x => x.Month)
-                .ToList();
+                        group => group.Key,
+                        group => group.Count()
+                    );
 
-            return Ok(groupedByMonth);
+            var result = new
+            {
+                Year = now.Year,
+                Month = now.Month,
+                StatusCounts = statusCounts
+            };
+
+            return Ok(result);
         }
 
         [HttpGet("leader/tasks-by-year")]
