@@ -188,8 +188,9 @@ namespace WebApplicationFlowSync.Controllers
         [Authorize(Roles ="Leader")]
         public async Task<IActionResult> GetLeaderMonthlyStatusCounts()
         {
-            var leader = await userManager.GetUserAsync(User);
-            if (leader == null || !User.IsInRole("Leader")) 
+            var leader = await context.Users
+                      .FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
+            if (leader == null) 
                 return Unauthorized("User not found");
              
             var memberIds = await context.Users
@@ -255,7 +256,9 @@ namespace WebApplicationFlowSync.Controllers
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetLeaderTasksByYear()
         {
-            var leader = await userManager.GetUserAsync(User);
+            var leader = await context.Users
+                      .FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
+
             if (leader == null)
                 return Unauthorized("User not found");
 
@@ -307,7 +310,8 @@ namespace WebApplicationFlowSync.Controllers
         [Authorize(Roles = "Leader")]
         public async Task<IActionResult> GetLeaderYearlyKPI()
         {
-            var leader = await userManager.GetUserAsync(User);
+            var leader = await context.Users
+                      .FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
             if (leader == null)
                 return Unauthorized("User not found");
 
