@@ -244,12 +244,18 @@ namespace WebApplicationFlowSync.Controllers
             // إنشاء رابط إعادة تعيين كلمة المرور
             var resetLink = $"http://localhost:3001/reset-password?userId={user.Id}&token={encodedToken}";
 
+            var htmlBody = EmailTemplateBuilder.BuildTemplate(
+                            "Reset Your Password",
+                            "We received a request to reset your password. Click the button below to continue:",
+                            "Reset Password",
+                            resetLink
+                        );
             // إرسال الإيميل
             var emailDto = new EmailDto
             {
                 To = user.Email,
                 Subject = "Reset your password",
-                Body = $"Click the link to reset your password: <a href=\"{resetLink}\">{resetLink}</a>"
+                Body = htmlBody
             };
 
             await emailService.sendEmailAsync(emailDto);
@@ -327,7 +333,7 @@ namespace WebApplicationFlowSync.Controllers
                 }
             }
 
-            return Ok("Email confirmed successfully.");
+            return Redirect("https://localhost:59682/confirmation/success.html");
         }
 
 

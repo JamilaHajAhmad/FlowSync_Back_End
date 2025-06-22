@@ -245,6 +245,7 @@ namespace WebApplicationFlowSync
             // edit
             app.UseWebSockets(webSocketOptions);
 
+            app.UseStaticFiles();
             app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();

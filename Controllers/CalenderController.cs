@@ -144,30 +144,5 @@ namespace WebApplicationFlowSync.Controllers
             return Ok(calenserEvents);
                 
         }
-
-
-        //[HttpPost("send-reminder/{eventId}")]
-        //public async Task<IActionResult> SendTestReminder(int eventId)
-        //{
-        //    var calendarEvent = await context.CalendarEvents
-        //        .Include(e => e.User)
-        //        .FirstOrDefaultAsync(e => e.Id == eventId);
-
-        //    if (calendarEvent == null || calendarEvent.User == null)
-        //        return NotFound("Event or user not found.");
-
-        //    var user = calendarEvent.User;
-        //    string message = $"Test Reminder: Event '{calendarEvent.Title}' is scheduled at {calendarEvent.EventDate:HH:mm dd/MM/yyyy}.";
-
-        //    await notificationService.SendNotificationAsync(
-        //        user.Id,
-        //        message,
-        //        NotificationType.Reminder,
-        //        user.Email
-        //    );
-
-        //    return Ok("✅ Test reminder sent successfully.");
-        //}
-
     }
 }

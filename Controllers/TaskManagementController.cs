@@ -67,6 +67,11 @@ namespace WebApplicationFlowSync.Controllers
                 throw new Exception("The selected member has not confirmed their email address and cannot be assigned a task.");
             }
 
+            var existingTask = await context.Tasks.AnyAsync(t => t.FRNNumber == model.FRNNumber);
+            if (existingTask)
+                return BadRequest($"A task with FRN number {model.FRNNumber} already exists. Please use a unique FRN number.");
+
+
             // إنشاء التاسك
             var task = new Models.Task
             {
