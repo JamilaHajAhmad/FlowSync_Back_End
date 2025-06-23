@@ -10,7 +10,7 @@
         public bool IsRead { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsEdited { get; set; }
-
+        public bool IsForwarded { get; set; }
         public bool IsMine { get; set; }
     }
 }

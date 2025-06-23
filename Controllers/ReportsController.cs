@@ -184,15 +184,15 @@ namespace WebApplicationFlowSync.Controllers
         }
 
         // Dashboard Repots
-        [HttpGet("leader/monthly-task-status-counts")]
-        [Authorize(Roles ="Leader")]
-        public async Task<IActionResult> GetLeaderMonthlyStatusCounts()
+        [HttpGet("leader/monthly-task-status-summary")]
+        [Authorize(Roles = "Leader")]
+        public async Task<IActionResult> GetLeaderMonthlyTaskStatusSummary()
         {
             var leader = await context.Users
-                      .FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
-            if (leader == null) 
+                .FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
+            if (leader == null)
                 return Unauthorized("User not found");
-             
+
             var memberIds = await context.Users
                 .Where(m => m.LeaderID == leader.Id)
                 .Select(m => m.Id)
@@ -200,32 +200,30 @@ namespace WebApplicationFlowSync.Controllers
 
             var now = DateTime.Now;
 
-            var tasks = await context.Tasks
+            var summary = await context.Tasks
                 .Where(t => memberIds.Contains(t.UserID) &&
                             t.CreatedAt.Year == now.Year &&
                             t.CreatedAt.Month == now.Month)
+                .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month, t.CreatedAt.Day, t.Type })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Day = g.Key.Day,
+                    Status = g.Key.Type.ToString(),
+                    Count = g.Count()
+                })
+                .OrderBy(g => g.Year)
+                .ThenBy(g => g.Month)
+                .ThenBy(g => g.Day)
                 .ToListAsync();
 
-            var statusCounts = tasks
-                    .GroupBy(t => t.Type.ToString())
-                    .ToDictionary(
-                        group => group.Key,
-                        group => group.Count()
-                    );
-
-            var result = new
-            {
-                Year = now.Year,
-                Month = now.Month,
-                StatusCounts = statusCounts
-            };
-
-            return Ok(result);
+            return Ok(summary);
         }
 
-        [HttpGet("member/monthly-task-status-counts")]
+        [HttpGet("member/monthly-task-status-summary")]
         [Authorize(Roles = "Member")]
-        public async Task<IActionResult> GetMemberMonthlyStatusCounts()
+        public async Task<IActionResult> GetMemberMonthlyTaskStatusSummary()
         {
             var member = await userManager.GetUserAsync(User);
             if (member == null)
@@ -233,27 +231,25 @@ namespace WebApplicationFlowSync.Controllers
 
             var now = DateTime.Now;
 
-            var tasks = await context.Tasks
+            var summary = await context.Tasks
                 .Where(t => t.UserID == member.Id &&
-                       t.CreatedAt.Year == now.Year &&
-                       t.CreatedAt.Month == now.Month)
+                            t.CreatedAt.Year == now.Year &&
+                            t.CreatedAt.Month == now.Month)
+                .GroupBy(t => new { t.CreatedAt.Year, t.CreatedAt.Month, t.CreatedAt.Day, t.Type })
+                .Select(g => new
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Day = g.Key.Day,
+                    Status = g.Key.Type.ToString(),
+                    Count = g.Count()
+                })
+                .OrderBy(g => g.Year)
+                .ThenBy(g => g.Month)
+                .ThenBy(g => g.Day)
                 .ToListAsync();
 
-            var statusCounts = tasks
-                    .GroupBy(t => t.Type.ToString())
-                    .ToDictionary(
-                        group => group.Key,
-                        group => group.Count()
-                    );
-
-            var result = new
-            {
-                Year = now.Year,
-                Month = now.Month,
-                StatusCounts = statusCounts
-            };
-
-            return Ok(result);
+            return Ok(summary);
         }
 
         [HttpGet("leader/tasks-by-year")]

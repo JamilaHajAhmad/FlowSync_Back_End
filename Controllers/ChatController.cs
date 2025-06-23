@@ -40,7 +40,8 @@ namespace WebApplicationFlowSync.Controllers
             {
                 SenderId = sender.Id,
                 ReceiverId = dto.ReceiverId,
-                Message = dto.Message
+                Message = dto.Message,
+                IsForwarded = dto.IsForwarded
             };
 
             context.ChatMessages.Add(message);
@@ -51,7 +52,8 @@ namespace WebApplicationFlowSync.Controllers
                             sender.Id,
                             message.Message,
                             message.Id,
-                            message.SentAt);
+                            message.SentAt,
+                            message.IsForwarded);
 
 
             // تحويل إلى DTO
@@ -61,7 +63,12 @@ namespace WebApplicationFlowSync.Controllers
                 Message = message.Message,
                 SentAt = message.SentAt,
                 SenderId = message.SenderId,
-                ReceiverId = message.ReceiverId
+                ReceiverId = message.ReceiverId,
+                IsRead = message.IsRead,
+                IsDeleted = message.IsDeleted,
+                IsEdited = message.IsEdited,
+                IsForwarded = message.IsForwarded,
+                IsMine = true
             };
 
             return Ok(messageDto);

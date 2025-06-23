@@ -21,6 +21,7 @@ namespace WebApplicationFlowSync.Models
         public bool IsRead { get; set; } = false;
         public bool IsDeleted { get; set; } = false;
         public bool IsEdited { get; set; } = false;
+        public bool IsForwarded { get; set; } = false;
 
         [ForeignKey("SenderId")]
         public AppUser Sender { get; set; }
