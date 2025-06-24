@@ -26,7 +26,7 @@ namespace WebApplicationFlowSync.services.BackgroundServices
                     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
                     var leader = await context.Users.FirstOrDefaultAsync(u => u.Role == Role.Leader && !u.IsDeactivated);
-                    var admin = await userManager.FindByEmailAsync("admin@dubaipolice.gov.ae");
+                    var admin = await userManager.FindByEmailAsync("flowsync.adm@outlook.com");
 
                     if (admin != null && await userManager.IsInRoleAsync(admin, "Admin"))
                     {
