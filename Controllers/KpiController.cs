@@ -8,7 +8,7 @@ using WebApplicationFlowSync.services.KpiService;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class KpiController : ControllerBase
     {

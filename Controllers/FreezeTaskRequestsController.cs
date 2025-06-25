@@ -14,7 +14,7 @@ using Microsoft.Graph.Models;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class FreezeTaskRequestsController : ControllerBase
     {

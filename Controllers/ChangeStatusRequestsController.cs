@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ChangeStatusRequestsController : ControllerBase
     {

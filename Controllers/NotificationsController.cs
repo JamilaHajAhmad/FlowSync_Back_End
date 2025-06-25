@@ -9,7 +9,7 @@ using WebApplicationFlowSync.Models;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class NotificationsController : ControllerBase
     {

@@ -11,7 +11,7 @@ using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.services;
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [Authorize]
     [ApiController]
     public class ChatController : ControllerBase

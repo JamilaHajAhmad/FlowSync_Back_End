@@ -13,7 +13,7 @@ using TaskStatus = WebApplicationFlowSync.Models.TaskStatus;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class ProfileController : ControllerBase
     {

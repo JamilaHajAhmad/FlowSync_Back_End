@@ -8,7 +8,7 @@ using WebApplicationFlowSync.services.EmailService;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class FeedbackAndSupportController : ControllerBase
     {

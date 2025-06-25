@@ -9,11 +9,10 @@ using WebApplicationFlowSync.services.EmailService;
 using WebApplicationFlowSync.services.NotificationService;
 using WebApplicationFlowSync.Data;
 using Microsoft.EntityFrameworkCore;
-using WebApplicationFlowSync.Models.Requests;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class DeactivateAccountRequestController : ControllerBase
     {

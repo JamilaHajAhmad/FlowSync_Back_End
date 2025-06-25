@@ -15,7 +15,7 @@ using Microsoft.Graph.Drives.Item.Items.Item.Workbook.Functions.YearFrac;
 
 namespace WebApplicationFlowSync.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class CompleteTaskRequestsController : ControllerBase
     {
