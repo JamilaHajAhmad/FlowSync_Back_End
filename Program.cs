@@ -51,9 +51,7 @@ namespace WebApplicationFlowSync
 
 
                 options.Lockout.MaxFailedAccessAttempts = 5;
-                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
-
-                //options.User.RequireUniqueEmail = true;       
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);       
             }).AddEntityFrameworkStores<ApplicationDbContext>()
               .AddDefaultTokenProviders();
 
@@ -80,11 +78,10 @@ namespace WebApplicationFlowSync
                    options.AddPolicy("AllowAll",
                    builder =>
                    {
-                       //builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
                        builder.WithOrigins("http://localhost:3001") // ← ضع عنوان الواجهة
                               .AllowAnyMethod()
                               .AllowAnyHeader()
-                              .AllowCredentials(); // ← مطلوب مع SignalR
+                              .AllowCredentials(); //  مطلوب مع SignalR
 
 
                    });
@@ -105,9 +102,6 @@ namespace WebApplicationFlowSync
 
             // Email Service 
             RegisterMailServices(builder);
-
-            // Email Service (outlook)
-            //builder.Services.AddScoped<IEmailService, EmailService>();
 
             builder.Services.AddSignalR();
 
@@ -143,7 +137,7 @@ namespace WebApplicationFlowSync
             ValidAudience = builder.Configuration.GetSection("jwt")["ValidAudience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("jwt")["secretKey"])),
 
-            // ✅ هذا مهم جدًا للسماح باستخدام [Authorize(Roles = "...")]
+            // هذا مهم جدًا للسماح باستخدام [Authorize(Roles = "...")]
             RoleClaimType = ClaimTypes.Role
         };
         options.Events = new JwtBearerEvents
@@ -193,7 +187,7 @@ namespace WebApplicationFlowSync
                 app.UseSwaggerUI();
             }
 
-            // ✅ إضافة هذا البلوك لإنشاء الأدوار عند بداية التشغيل
+            // إضافة هذا البلوك لإنشاء الأدوار عند بداية التشغيل
             using (var scope = app.Services.CreateScope())
             {
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();

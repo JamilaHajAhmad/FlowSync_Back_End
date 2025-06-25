@@ -7,6 +7,7 @@ using System.Web;
 using WebApplicationFlowSync.Data;
 using WebApplicationFlowSync.DTOs;
 using WebApplicationFlowSync.DTOs.Auth;
+using WebApplicationFlowSync.Errors;
 using WebApplicationFlowSync.Models;
 using WebApplicationFlowSync.Models.Requests;
 using WebApplicationFlowSync.Models.Requests.WebApplicationFlowSync.Models.Requests;

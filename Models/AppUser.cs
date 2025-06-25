@@ -62,9 +62,9 @@ namespace WebApplicationFlowSync.Models
         [MaxLength(500)]
         public string? Bio { get; set; } = null;
 
-}
+    }
 
-public enum Role
+    public enum Role
 {
     Leader,
     Member,
