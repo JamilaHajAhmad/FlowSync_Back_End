@@ -68,6 +68,7 @@ namespace WebApplicationFlowSync.Controllers
                 Role = model.Role,
                 UserName = model.Email,
                 EmailConfirmed = false,
+                LockoutEnabled = true,
                 JoinedAt = model.Role == Role.Leader ? DateTime.Now : null
             };
 
@@ -142,7 +143,13 @@ namespace WebApplicationFlowSync.Controllers
             //Check Password
             if (model.Password is null) return Unauthorized();
 
-            var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            if (await userManager.IsLockedOutAsync(user))
+                return Unauthorized("Your account is locked due to multiple failed login attempts. Please try again later.");
+
+
+            var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, true);
+
+            if (result.IsLockedOut) return Unauthorized("Your account has been locked due to too many failed login attempts. Please try again in 15 minutes.");
 
             if (!result.Succeeded) return Unauthorized("Invalid data");
 
@@ -199,6 +206,7 @@ namespace WebApplicationFlowSync.Controllers
             });
 
         }
+
 
         [HttpPost("change-password")]
         [Authorize]
