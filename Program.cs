@@ -79,7 +79,7 @@ namespace WebApplicationFlowSync
                    options.AddPolicy("AllowAll",
                    builder =>
                    {
-                       builder.WithOrigins("http://localhost:3001") // ← ضع عنوان الواجهة
+                       builder.WithOrigins("https://flowsync.vercel.app") // ← ضع عنوان الواجهة
                               .AllowAnyMethod()
                               .AllowAnyHeader()
                               .AllowCredentials(); //  مطلوب مع SignalR
