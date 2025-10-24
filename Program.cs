@@ -76,7 +76,7 @@ namespace WebApplicationFlowSync
             builder.Services.AddCors(
                options =>
                {
-                   options.AddPolicy("AllowAll",
+                   options.AddPolicy("AllowFrontend",
                    builder =>
                    {
                        builder.WithOrigins("https://flowsync.vercel.app") // ← ضع عنوان الواجهة
@@ -241,7 +241,7 @@ namespace WebApplicationFlowSync
             app.UseWebSockets(webSocketOptions);
 
             app.UseStaticFiles();
-            app.UseCors("AllowAll");
+            app.UseCors("AllowFrontend");
 
             app.UseHttpsRedirection();
 
